@@ -1,0 +1,114 @@
+---
+title: "Multivaraite Statistical Methods - Lab 01"
+author: "Maximilian Pfundstein (maxpf364) and Hector and Aashana and Lakshidaa"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    df_print: paged
+    number_sections: no
+    toc: yes
+    toc_float: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Describing Individual Variables
+
+Consider the data set in the ``T1-9.dat`` file, National track records for women. For 55 different countries we have the national records for 7 variables (100, 200, 400, 800, 1500, 3000m and marathon ). Use R to do the following analyses.
+
+## Describing the Variables
+
+**Task:** Describe the 7 variables with mean values, standard deviations e.t.c.
+
+**Answer:**
+
+## Illustrate the Variables
+
+**Task:** Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the `hist()` and `density()` functions.
+
+**Answer:**
+
+# Relationships Between the Variables
+
+## Covariance and Correlation Matrices
+
+**Task:** Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
+
+**Answer:**
+
+## Scatterplots
+
+**Task:** Generate and study the scatterplots between each pair of variables. Any extreme values?
+
+**Answer:**
+
+## More Graphs
+
+**Task:** Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
+
+**Answer:**
+
+# Examining for Extreme Values
+
+## Most Extreme Countries
+
+**Task:** Look at the plots (esp. scatterplots) generated in the previous question. Which 3–4 countries appear most extreme? Why do you consider them extreme?
+
+**Answer:**
+
+## Multivariate Residual
+
+One approach to measuring "extremism" is to look at the distance (needs to be defined!) between an observation and the sample mean vector, i.e. we look how far one is from the average. Such a distance can be called an *multivariate residual* for the given observation.
+
+**Task:** The most common residual is the Euclidean distance between the observation and sample mean vector, i.e.
+
+$$d(\vec{x}, \bar{x}) = \sqrt{(\vec{x} - \bar{x})^T(\vec{x} - \bar{x})}.$$
+This distance can be immediately generalized to the $L^r, r > 0$ distance as
+
+$$d_{L^r} (\vec{x} - \bar{x}) = \left( \sum_{i=1}^p | \vec{x}_i - \bar{x}_i |^r \right) ^{1/r},$$
+where $p$ is the dimension of the observation (here $p = 7$).
+
+Compute the squared Euclidean distance (i.e. r = 2) of the observation from the sample mean for all 55 countries using R’s matrix operations. First center the raw data by the means to get $\vec{x} - \bar{x}$ for each country. Then do a calculation with matrices that will result in a matrix that has on its diagonal the requested squared distance for each country. Copy this diagonal to a vector and report on the five most extreme countries. In this questions you **MAY NOT** use any loops.
+
+**Answer:**
+
+## Squared Distance
+
+**Task:** The different variables have different scales so it is possible that the distances can be dominated by some few variables. To avoid this we can use the squared distance
+
+$$d^2_{\boldsymbol{V}}(\vec{x} - \bar{x}) = (\vec{x} - \bar{x}) \boldsymbol{V}^{-1} (\vec{x} - \bar{x}),$$
+
+where **V** is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance. It is simple to compute this measure by standardizing the raw data with both means (centring) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
+
+**Answer:**
+
+## Mahalanobis Distance
+
+**Task:** The most common statistical distance is the *Mahalanobis distance*
+
+$$d^2_M(\vec{x} - \bar{x}) = (\vec{x} - \bar{x})^T \boldsymbol{C}^{-1}(\vec{x} - \bar{x}),$$
+
+where **C** is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as $d_V(\cdot , \cdot)$ does). Compute the Mahalanobis distance, which countries are most extreme now?
+
+**Answer:**
+
+## Czekanowski’s Diagram
+
+**Task:** Compare the results in b)–d). Some of the countries are in the upper end with all the measures and perhaps they can be classified as extreme. Discuss this. But also notice the different measures give rather different results (how does Sweden behave?). Summarize this graphically. Produce Czekanowski’s diagram using e.g. the `RMaCzek` package. In case of problems please describe them.
+
+**Answer:**
+
+# Source Code
+
+```{r, ref.label=knitr::all_labels(), echo = TRUE, eval = FALSE, results = 'show'}
+
+```
