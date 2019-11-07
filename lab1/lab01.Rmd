@@ -18,6 +18,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+library(gridExtra)
+library(ggplot2)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -29,13 +31,130 @@ Consider the data set in the ``T1-9.dat`` file, National track records for women
 
 **Task:** Describe the 7 variables with mean values, standard deviations e.t.c.
 
-**Answer:**
+**Answer:** First we import, name and look at the track times.
+
+```{r}
+
+track_times = read.table("data/T1-9.dat")
+colnames(track_times) = c("country", "100m", "200m", "400m",
+                   "800m", "1500m", "3000m", "marathon")
+head(track_times)
+
+```
+
+We see that the times for the 100m, 200m and 400m are in seconds, whereas the times for 1500m, 3000m and the marathon are measured in minutes. So first we have to adjust that.
+
+```{r}
+
+track_times[,5:8] = track_times[,5:8] * 60
+head(track_times)
+
+```
+
+
+```{r}
+
+track_times_mean = apply(track_times[,2:8], 2, mean)
+track_times_median = apply(track_times[,2:8], 2, median)
+track_times_sd = apply(track_times[,2:8], 2, sd)
+
+track_times_mean
+track_times_median
+track_times_sd
+
+```
+
+We see that the mean exceeds the anticipated scaled times. This means that if the time for 100m is `r track_times_mean[1]`, one could assume that for 200m twice the time, `r track_times_mean[1] * 2` is needed. But due to human exhaustion we see that the means increase by more than that, in this case the mean for the 200m marathon is `r track_times_mean[2]`. For the median the effect is a bit weaker as it is not as heavily effected by outliers as the mean. Still the effect is visible. Also the deviations increase, here the described effect is even larger.
 
 ## Illustrate the Variables
 
 **Task:** Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the `hist()` and `density()` functions.
 
 **Answer:**
+
+```{r, echo=FALSE}
+
+p1 = ggplot() +
+  geom_histogram(aes(x = track_times$`100m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[1], color="Mean")) +
+  geom_vline(aes(xintercept = track_times_median[1], color ="Median")) +
+  labs(title = "Histrogram of 100m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p2 = ggplot() +
+  geom_histogram(aes(x = track_times$`200m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[2], color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[2], color = "Median")) +
+  labs(title = "Histrogram of 200m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p3 = ggplot() +
+  geom_histogram(aes(x = track_times$`400m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[3], color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[3], color = "Median")) +
+  labs(title = "Histrogram of 400m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p4 = ggplot() +
+  geom_histogram(aes(x = track_times$`800m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[4],  color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[4],  color = "Median")) +
+  labs(title = "Histrogram of 800m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p5 = ggplot() +
+  geom_histogram(aes(x = track_times$`1500m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[5], color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[5], color = "Median")) +
+  labs(title = "Histrogram of 1500m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p6 = ggplot() +
+  geom_histogram(aes(x = track_times$`3000m`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[6], color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[6], color = "Median")) +
+  labs(title = "Histrogram of 3000m",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+p7 = ggplot() +
+  geom_histogram(aes(x = track_times$`marathon`, y=..density..),
+                 color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_vline(aes(xintercept = track_times_mean[7], color = "Mean")) +
+  geom_vline(aes(xintercept = track_times_median[7], color = "Median")) +
+  labs(title = "Histrogram of marathon",
+       y = "Density",
+       x = "Time", color = "Legend") +
+  scale_color_manual(values = c("#FFC300", "#C25E5E")) +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, ncol = 2)
+
+```
+
 
 # Relationships Between the Variables
 
