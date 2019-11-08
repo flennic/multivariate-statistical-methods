@@ -20,6 +20,10 @@ output:
 ```{r setup, include=FALSE}
 library(gridExtra)
 library(ggplot2)
+library(GGally)
+library(aplpack)
+library(lattice)
+library(RMaCzek)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -46,7 +50,8 @@ We see that the times for the 100m, 200m and 400m are in seconds, whereas the ti
 
 ```{r}
 
-track_times[,5:8] = track_times[,5:8] * 60
+# It seems like we are not supposed to correct this, so it's commented out.
+#track_times[,5:8] = track_times[,5:8] * 60
 head(track_times)
 
 ```
@@ -70,13 +75,23 @@ We see that the mean exceeds the anticipated scaled times. This means that if th
 
 **Task:** Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the `hist()` and `density()` functions.
 
-**Answer:**
+**Answer:** From the histograms we can try to make assumptions, if the data is normally distributed. Some of them are cleary not, but we will use a statistical test for checking: For $p > 0.05$ we cannot reject the hypothesis, that the data is normal. It looks like that only the data from the 100m track is normal, after that the likelihood being from a normal decreases with track length quite fast.
+
+```{r}
+
+shapiro_wilk_res = apply(track_times[,2:8], 2, shapiro.test)
+shapiro_wilk_res
+
+```
+
 
 ```{r, echo=FALSE}
 
 p1 = ggplot() +
   geom_histogram(aes(x = track_times$`100m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`100m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[1], color="Mean")) +
   geom_vline(aes(xintercept = track_times_median[1], color ="Median")) +
   labs(title = "Histrogram of 100m",
@@ -88,6 +103,8 @@ p1 = ggplot() +
 p2 = ggplot() +
   geom_histogram(aes(x = track_times$`200m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`200m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[2], color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[2], color = "Median")) +
   labs(title = "Histrogram of 200m",
@@ -99,6 +116,8 @@ p2 = ggplot() +
 p3 = ggplot() +
   geom_histogram(aes(x = track_times$`400m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`400m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[3], color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[3], color = "Median")) +
   labs(title = "Histrogram of 400m",
@@ -110,6 +129,8 @@ p3 = ggplot() +
 p4 = ggplot() +
   geom_histogram(aes(x = track_times$`800m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`800m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[4],  color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[4],  color = "Median")) +
   labs(title = "Histrogram of 800m",
@@ -121,6 +142,8 @@ p4 = ggplot() +
 p5 = ggplot() +
   geom_histogram(aes(x = track_times$`1500m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`1500m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[5], color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[5], color = "Median")) +
   labs(title = "Histrogram of 1500m",
@@ -132,6 +155,8 @@ p5 = ggplot() +
 p6 = ggplot() +
   geom_histogram(aes(x = track_times$`3000m`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`3000m`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[6], color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[6], color = "Median")) +
   labs(title = "Histrogram of 3000m",
@@ -143,6 +168,8 @@ p6 = ggplot() +
 p7 = ggplot() +
   geom_histogram(aes(x = track_times$`marathon`, y=..density..),
                  color = "black", fill = "#dedede", bins = sqrt(nrow(track_times))) +
+  geom_density(aes(x = track_times$`marathon`, y=..density..),
+               color="darkblue", fill="lightblue", alpha = 0.2) + 
   geom_vline(aes(xintercept = track_times_mean[7], color = "Mean")) +
   geom_vline(aes(xintercept = track_times_median[7], color = "Median")) +
   labs(title = "Histrogram of marathon",
@@ -151,10 +178,17 @@ p7 = ggplot() +
   scale_color_manual(values = c("#FFC300", "#C25E5E")) +
   theme_minimal()
 
+#p1
+#p2
+#p3
+#p4
+#p5
+#p6
+#p7
+
 grid.arrange(p1, p2, p3, p4, p5, p6, p7, ncol = 2)
 
 ```
-
 
 # Relationships Between the Variables
 
@@ -162,19 +196,74 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, ncol = 2)
 
 **Task:** Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
 
-**Answer:**
+**Answer:** So far we looked at the data as independent processes. If we assume them as from multivariate process, our analysis will change in the following way.
+
+**Mean:** Actually the calculation stays the same:
+
+```{r}
+as.vector(track_times_mean)
+```
+
+**Covariance:**
+
+```{r}
+cov(track_times[,2:8])
+```
+
+**Correlation:**
+
+```{r}
+cor(track_times[,2:8])
+```
+
+We can also show the heatmap of the correlation to get a better overview:
+
+```{r, echo=FALSE}
+heatmap(cor(track_times[,2:8]), Rowv=NA, Colv=NA, revC=TRUE)
+```
+
+From the heatmap it looks like that we have two groups of tracks that are cmore correlated than the others. It seems that 100m, 200m and 400 belong to ond group and 800m, 1500m, 3000m and the marathon belong to the other.
 
 ## Scatterplots
 
 **Task:** Generate and study the scatterplots between each pair of variables. Any extreme values?
 
-**Answer:**
+**Answer:** While the lower tracks seem to have a linear dependence to each other, this behaviour vanishes as the track length of one increases. So a track long track compares to a short track have more like a normal density around a shifted mean. If both tracks are long, this we see a mixture of these behaviours: Somehow they cluster up, but still remain some linear dependency (which makes sense to a degree that the track lenghts actually increase linearly). Also it seems more likely to have outliers for the longer tracks. This can also be seen in the histograms of the previous exercise.
+
+```{r}
+pairs(track_times[,2:8], main="Scatterplots for Tracks")
+```
+
 
 ## More Graphs
 
 **Task:** Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 
-**Answer:**
+**Answer:** See the following plots.
+
+```{r}
+
+faces(track_times[,2:8], face.type=1)
+
+```
+
+
+```{r, echo=FALSE}
+
+p = ggpairs(track_times[,2:8], aes(label=track_times$country)) + theme_minimal()
+# Change color manually.
+# Loop through each plot changing relevant scales
+for(i in 1:p$nrow) {
+  for(j in 1:p$ncol){
+    p[i,j] <- p[i,j] + 
+        scale_fill_manual(values=c("#00AFBB", "#E7B800", "#FC4E07")) +
+        scale_color_manual(values=c("#00AFBB", "#E7B800", "#FC4E07"))  
+  }
+}
+p
+
+```
+
 
 # Examining for Extreme Values
 
@@ -182,7 +271,37 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, ncol = 2)
 
 **Task:** Look at the plots (esp. scatterplots) generated in the previous question. Which 3–4 countries appear most extreme? Why do you consider them extreme?
 
-**Answer:**
+**Answer:** Looking at the scatterplots we see that the outliers are usually those that are extremely slow. It does not really happen that we have one outlier that is way faster than the others (which makes sense in a way that in a fierce competition minimal times matter a lot). We therefore focus on outliers that are slower than 95% of the other nations. In this analysis USA was found two times and GER one time.
+
+```{r}
+
+upper = function(x) {
+  return(mean(x) + 1.645 * sd(x))
+}
+
+lower = function(x) {
+  return(mean(x) - 1.645 * sd(x))
+}
+
+uppers = apply(track_times[,2:8], 2, upper)
+lowers = apply(track_times[,2:8], 2, lower)
+
+for (i in 1:7) {
+  name = colnames(track_times[,2:8])[i]
+  #outliers_fast = track_times$country[track_times[,i] > uppers[i]]
+  outliers_slow = track_times$country[track_times[,i+1] < lowers[i]]
+  
+  #print("##########")
+  print(name)
+  #print("Fast outliers:")
+  #print(as.vector(outliers_fast))
+  print("Slow outliers:")
+  print(as.vector(outliers_slow))
+  print("##########")
+}
+
+```
+
 
 ## Multivariate Residual
 
@@ -198,7 +317,65 @@ where $p$ is the dimension of the observation (here $p = 7$).
 
 Compute the squared Euclidean distance (i.e. r = 2) of the observation from the sample mean for all 55 countries using R’s matrix operations. First center the raw data by the means to get $\vec{x} - \bar{x}$ for each country. Then do a calculation with matrices that will result in a matrix that has on its diagonal the requested squared distance for each country. Copy this diagonal to a vector and report on the five most extreme countries. In this questions you **MAY NOT** use any loops.
 
-**Answer:**
+**Answer:** The following function implement the functionality. The function `euclidean` calculates the eucliean residual. The function `distance` also handles arbitrary values for $r$, but utilised more built-in R functions. `get_outliers` orders the result and selects the $n$ top countries. This functions are resued in the following exercises.
+
+```{r}
+
+euclidean = function(X) {
+  
+  # Preprocessing
+  X = as.matrix(X)
+  
+  # X - X_bar
+  #ident = matrix(-1, nrow=nrow(X), ncol=nrow(X))
+  #diag(ident) = nrow(X)
+  #X_bar = 1/N *(t(ident) %*% X)
+  
+  # X - X_bar
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  X_centered = X - mu
+  
+  res = sqrt(diag(X_centered %*% t(X_centered)))
+  
+  return(res)
+}
+
+distance = function(X, r = 2) {
+  
+  # Preprocessing
+  X = as.matrix(X)
+  
+  # X - X_bar
+  #ident = matrix(-1, nrow=nrow(X), ncol=nrow(X))
+  #diag(ident) = nrow(X)
+  #X_bar = 1/N *(t(ident) %*% X)
+  
+  # X - X_bar
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  X_centered = X - mu
+  
+  res = rowSums(X_centered^r)^(1/r)
+  
+  return(res)
+}
+
+get_outliers = function(data, n=5) {
+  data = as.matrix(data)
+  return(track_times$country[order(data, decreasing = TRUE)[1:n]])
+}
+
+```
+
+```{r}
+euclidean(track_times[,2:8])
+distance(track_times[,2:8])
+```
+
+```{r}
+get_outliers(euclidean(track_times[,2:8]))
+```
 
 ## Squared Distance
 
@@ -208,7 +385,62 @@ $$d^2_{\boldsymbol{V}}(\vec{x} - \bar{x}) = (\vec{x} - \bar{x}) \boldsymbol{V}^{
 
 where **V** is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance. It is simple to compute this measure by standardizing the raw data with both means (centring) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
 
-**Answer:**
+**Answer:** In the following, both approaches are implemented and it can be seen, that they yield the same result. `sample_variance` is a helper function that calcualtes teh sample variance. The function `normalize` normalises the data (actually standardises, not normalises).
+
+The function `squared_distance` directly calculates the result using vectorisation and matrix multiplication.
+
+```{r}
+
+sample_variance = function(X) {
+  
+  X = as.matrix(X)
+  
+  identity = diag(nrow(X))
+  one_n = matrix(1, nrow=nrow(X), ncol=1)
+  
+  inter =  identity - 1/nrow(X) * (one_n %*% t(one_n)) 
+  
+  return(1/nrow(X) * (t(X) %*% inter %*% X))
+}
+
+normalize = function(X) {
+  X = as.matrix(X)
+  
+  sigma = sqrt(diag(sample_variance(X)))
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  
+  X_centered = X - mu
+  X_norm = X_centered / matrix(sigma, nrow=nrow(X), ncol=length(sigma), byrow = TRUE)
+  
+  return(X_norm)
+}
+
+X_norm = normalize(track_times[,2:8])
+X_euc = euclidean(X_norm)
+
+get_outliers(X_euc)
+
+```
+
+```{r}
+
+squared_distance = function(X) {
+  X = as.matrix(X)
+  
+  V = matrix(0, nrow=ncol(X), ncol=ncol(X))
+  diag(V) = diag(sample_variance(X))
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  
+  X_centered = X - mu
+  
+  return(diag(X_centered %*% solve(V) %*% t(X_centered)))
+}
+
+get_outliers(squared_distance(track_times[,2:8]))
+
+```
 
 ## Mahalanobis Distance
 
@@ -218,13 +450,42 @@ $$d^2_M(\vec{x} - \bar{x}) = (\vec{x} - \bar{x})^T \boldsymbol{C}^{-1}(\vec{x} -
 
 where **C** is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as $d_V(\cdot , \cdot)$ does). Compute the Mahalanobis distance, which countries are most extreme now?
 
-**Answer:**
+**Answer:** The function `mahalanobis_distance` is basically the same, just that this time the whole sample variance is taken into account.
+
+```{r}
+
+mahalanobis_distance = function(X) {
+  X = as.matrix(X)
+  
+  V = sample_variance(X)
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  
+  X_centered = X - mu
+  
+  return(diag(X_centered %*% solve(V) %*% t(X_centered)))
+}
+
+get_outliers(mahalanobis_distance(track_times[,2:8]))
+
+```
 
 ## Czekanowski’s Diagram
 
 **Task:** Compare the results in b)–d). Some of the countries are in the upper end with all the measures and perhaps they can be classified as extreme. Discuss this. But also notice the different measures give rather different results (how does Sweden behave?). Summarize this graphically. Produce Czekanowski’s diagram using e.g. the `RMaCzek` package. In case of problems please describe them.
 
 **Answer:**
+
+```{r}
+
+# ,n_classes = nrow(track_times)
+czek_mat = czek_matrix(track_times[,2:8],
+                       scale_data = TRUE,
+                       monitor = TRUE)
+plot(czek_mat)
+
+```
+
 
 # Source Code
 
