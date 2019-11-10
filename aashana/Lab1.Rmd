@@ -1,0 +1,326 @@
+---
+title: "Multivariate Statistics Assignment 1"
+author: "Aashana Nijhawan"
+date: "07/11/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(aplpack) # for Chernoff faces
+library(gridExtra)
+```
+
+
+***
+# Question 1: Describing individual variables
+
+## a) Describe the 7 variables with mean values, standard deviations etc.
+
+```{r}
+
+trackData = read.table("T1-9.dat")
+colnames(trackData) = c("Countries", "100m", "200m", "400m", "800m", "1500m", "3000m", "Marathon")
+samplesnames = c("100m", "200m", "400m", "800m", "1500m", "3000m", "Marathon")
+# trackData[,5:8] = trackData[,5:8]*60
+trackData_Mean = colMeans(trackData[,2:8])
+trackData_SD = apply(trackData[,2:8], 2, sd)
+trackData_Median = apply(trackData[,2:8], 2, median)
+
+```
+
+## b) Illustrate the variables with different graphs
+
+** Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the hist() and density() functions **
+
+```{r}
+
+
+
+plt100 = ggplot()+
+  geom_histogram(aes(x=trackData$`100m`, y=..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[1],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[1],color="Median"))+
+  geom_density(aes(x=trackData$`100m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+```
+
+
+```{r}
+plt200 = ggplot()+
+  geom_histogram(aes(x=trackData$`200m`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[2],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[2],color="Median"))+
+  geom_density(aes(x=trackData$`200m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+
+
+```{r}
+plt400 = ggplot()+
+  geom_histogram(aes(x=trackData$`400m`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[3],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[3],color="Median"))+
+  geom_density(aes(x=trackData$`400m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+
+```{r}
+plt800 = ggplot()+
+  geom_histogram(aes(x=trackData$`800m`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[4],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[4],color="Median"))+
+  geom_density(aes(x=trackData$`800m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+
+```{r}
+plt1500 = ggplot()+
+  geom_histogram(aes(x=trackData$`1500m`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[5],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[5],color="Median"))+
+  geom_density(aes(x=trackData$`1500m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+```{r}
+plt3000 = ggplot()+
+  geom_histogram(aes(x=trackData$`3000m`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[6],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[6],color="Median"))+
+  geom_density(aes(x=trackData$`3000m`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+
+```{r}
+pltM = ggplot()+
+  geom_histogram(aes(x=trackData$`Marathon`, y= ..density..), color = "black", fill = "#343434",alpha=0.5,bins=30)+
+  geom_vline(aes(xintercept = trackData_Mean[7],color="Mean"))+
+  geom_vline(aes(xintercept = trackData_Median[7],color="Median"))+
+  geom_density(aes(x=trackData$`Marathon`, y=..density..), fill="lightpink", alpha=0.2)+
+  theme()
+
+```
+
+```{r}
+grid.arrange(plt100,plt200,plt400,plt800, ncol=2)
+```
+```{r}
+grid.arrange(plt1500,plt3000,pltM, ncol=2)
+```
+
+
+# Question 2: Relationships between the variables
+
+## a) Compute the covariance and correlation matrices
+```{r}
+trackData_Cov = cov(trackData[,2:8])
+trackData_Cor = cor(trackData[,2:8])
+
+```
+
+```{r}
+heatmap(trackData_Cor, col = terrain.colors(256), Rowv=NA,Colv=NA, revC=T)
+```
+
+Each square shows the correlation between the variables on each axis. Correlation ranges from -1 to +1. Values closer to zero means there is no linear trend between the two variables. The close to 1 the correlation is the more positively correlated they are; that is as one increases so does the other and the closer to 1 the stronger this relationship is. A correlation closer to -1 is similar, but instead of both increasing one variable will decrease as the other increases. The diagonals are all 1/dark green because those squares are correlating each variable to itself (so it's a perfect correlation). For the rest the larger the number and darker the color the higher the correlation between the two variables. The plot is also symmetrical about the diagonal since the same two variables are being paired together in those squares.
+
+## b) Scatterplots between each pair of variables
+
+```{r}
+pairs(trackData[,2:8], pch = ".", cex = 1.5)
+```
+
+## c)
+
+```{r}
+### Chernoff faces.
+ncolors=c("pink","blue","red","yellow","green","purple","orange","magenta")
+faces(trackData[,2:8],face.type=1, col.face =rainbow(50)) ## with colour
+
+```
+
+
+```{r}
+stars(trackData[,2:8], key.loc = c(14, 2), main = "Meters : stars(*, full = F)", full = FALSE)
+```
+
+```{r}
+my_cols <- c("#00AFBB", "#E7B800", "#FC4E07" , "#ff7f00" , "#ffff33" , "#a65628" , "#f781bf")  
+pairs(trackData[,2:8], pch = ".",  cex = 1.5,
+      col = my_cols,
+      lower.panel=NULL)
+```
+
+
+
+
+
+# Question 3: Examining for extreme values
+
+## Which 3–4 countries appear most extreme and why?
+
+```{r}
+higher = matrix(NA, 1,7)
+lower = matrix(NA, 1,7)
+extreme_high= NULL
+extreme_lower= NULL
+
+for(i in 1:7){
+ higher[i] = mean(trackData[,i+1]) + sd(trackData[,i+1])
+ lower[i] = mean(trackData[,i+1]) - sd(trackData[,i+1])
+ 
+ t_high  = as.character(trackData$Countries[trackData[,i+1]>higher[i]])
+ t_lower = as.character(trackData$Countries[trackData[,i+1]<lower[i]])
+ 
+ extreme_high[i] = list(i = t_high)
+ extreme_lower[i] = list(i = t_lower)
+ 
+ 
+}
+
+```
+
+
+# Euclidean
+
+```{r}
+euclidean = function(obs){
+  one = matrix(1, nrow(obs),nrow(obs))
+  sample_mean = (one %*% (obs))/nrow(obs)
+  Xbar = obs - sample_mean
+  bl = Xbar %*% t(Xbar)
+
+  vec = sqrt(diag(Xbar %*% t(Xbar)))
+  
+  return(vec)
+ 
+}
+
+
+
+```
+
+```{r}
+order_me = function(vec){
+   vec = order(vec, decreasing = T)
+   vec = vec[1:5]
+   return(trackData$Countries[vec])
+}
+
+```
+
+
+```{r}
+obs = as.matrix(trackData[,2:8])
+euc_Vec = euclidean(obs)
+order_me(euc_Vec)
+```
+
+## c) Unnormalized
+
+```{r}
+
+unnormal = function(obs){
+  
+  IdentityMat = diag(nrow(obs))
+  one_n = matrix(1,nrow(X),nrow(X)) 
+  
+  # sample var formula from notes
+  mix = (IdentityMat - (1/nrow(obs))*(one_n))
+  X = as.matrix(obs)
+  sample_variance = (t(X) %*% mix %*% X)/nrow(X)
+
+  # V from eq
+  V_1 = matrix(0, 7,7)
+  diag(V_1) = diag(sample_variance)
+  
+  # sample mean formula from notes
+  one = matrix(1, nrow(obs),nrow(obs))
+  sample_mean = (one %*% (obs))/nrow(obs)
+  Xbar = obs - sample_mean
+  
+  ss = (Xbar) %*% solve(V_1) %*% t(Xbar)
+  vec3 = diag(ss)
+  return(vec3)
+}
+
+
+unnormal_vec = unnormal(obs)
+order_me(unnormal_vec)
+
+```
+
+# normalized
+```{r}
+normalized = function(obs){
+  X = as.matrix(obs)
+  IdentityMat = diag(nrow(obs))
+  one_n = matrix(1,nrow(X),nrow(X)) 
+  
+  # sample var formula from notes
+  mix = (IdentityMat - (1/nrow(obs))*(one_n))
+  X = as.matrix(obs)
+  sample_variance = (t(X) %*% mix %*% X)/nrow(X)
+  
+  SD = sqrt(diag(sample_variance))
+  
+  # sample mean formula from notes
+  one = matrix(1, nrow(obs),nrow(obs))
+  sample_mean = (one %*% (obs))/nrow(obs)
+  Xbar = obs - sample_mean
+  
+  mu = sample_mean
+  X_norm = X - mu #(obs-mean)
+  zi = X_norm/matrix(SD,nrow(X),length(SD),byrow=T)
+  return(diag(zi))
+}
+
+norm_vec = normalized(obs)
+order_me(norm_vec)
+
+```
+
+Mahalanobis
+```{r}
+
+Mahalanobis = function(obs){
+  IdentityMat = diag(54)
+  one_n = matrix(1,54,54) #matrix(1,7,1) %*% matrix(1,1,7)
+  
+  V = (IdentityMat - (1/54)*(one_n))
+  
+  X = as.matrix(trackData[,2:8])
+  sample_variance = (t(X) %*% V %*% X)/54
+  
+  # sample mean formula from notes
+  one = matrix(1, 54,54)
+  sample_mean = (one %*% (obs))/54
+  Xbar = obs - sample_mean
+  
+  ss = (Xbar) %*% solve(sample_variance) %*% t(Xbar)
+  vec3 = diag(ss)
+  return(vec3)
+}
+
+Mahalanobis_vec = Mahalanobis(obs)
+order_me(Mahalanobis_vec)
+
+
+```
+
+***
+# Appendix
+```{r, ref.label = knitr::all_labels(), echo = TRUE, eval = FALSE}
+```
+
