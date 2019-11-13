@@ -1,6 +1,6 @@
 ---
 title: "Multivariate Statistical Methods (732A97) - Lab 01"
-author: "Hector Plata (hecpl268)"
+author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
 output: 
   pdf_document:
     toc: true
