@@ -9,6 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+# Loading required libraries
+library(ggplot2)
+library("car") # for qqPlot()
+```
+
 # Question 1: Test of outliers
 
 ## Consider again the data set from the T1-9.dat file, National track records for women. In the first assignment we studied different distance measures between an observation and the sample average vector. The most common multivariate residual is the Mahalanobis distance and we computed this distance for all observations.
@@ -95,6 +101,97 @@ cat("Position of North Korea in this list : ", which(euc_dist$Country == "KORN")
 ```
 
 On computing the Euclidean distance of the countries, it can be seen that North Korea is not an outlier. This is because the Euclidean distance computation treats data equally. Whereas, the Mahalanobis distance computation takes the covariance of each variable and obtains the correlation among variables. 
+
+# Question 2: Test, confidence region and confidence intervals for a mean vector
+
+## Look at the bird data in file T5-12.dat and solve Exercise 5.20 of Johnson, Wichern. Do not use any extra R package or built???in test but code all required matrix calculations. You MAY NOT use loops!
+
+```{r}
+# Importing the required data
+bird_data <- read.table("T5-12.DAT")
+colnames(bird_data) <- c("Tail_length", "Wing_length")
+head(bird_data)
+```
+
+## a) Find and sketch the 95% confidence ellipse for the population means $\mu_1$ and $\mu_2$. Suppose it is known that $\mu_1 = 190$ mm and $\mu_2 = 275$ mm for male hook-billed kites. Are these plausible values for the mean tail length and mean wing length for the female birds? Explain.
+
+```{r}
+alpha <- 0.95
+
+# Given mu_0 values (Center of ellipse)
+mu_1 <- 190
+mu_2 <- 275
+mu_0 <- c(mu_1, mu_2)
+
+n <- nrow(bird_data)
+p <- ncol(bird_data)
+
+x_bar <- colMeans(bird_data)
+S <- sample_variance(bird_data)
+S_inverse <- solve(S)
+
+eigen_values <- eigen(S)$values
+eigen_vectors <- eigen(S)$vectors
+
+chi_sq <- qchisq(alpha, p)
+c <- sqrt(chi_sq)   # Expression (4-8)
+
+# Half lengths
+major_len <- sqrt(eigen_values[1]) * c    # length of major axes
+minor_len <- sqrt(eigen_values[2]) * c    # length of minor axes
+
+```
+
+## b) Construct the simultaneous 95% $T^2$ intervals for $\mu_1$ and $\mu_2$ and the 95% Bonferroni intervals for $\mu_1$ and $\mu_2$.Compare the two sets of intervals. What advantage, if any, do the $T^2$ intervals have over the Bonferroni intervals?
+
+```{r}
+
+# 95% T^2 intervals
+t2_interval1 <- c(0,0)
+t2_interval1[1] <- x_bar[1] - sqrt((p*(n-1)/(n-p)) * 
+                                     qf(0.95, p, n-p)) * sqrt(S[1,1]/n)
+t2_interval1[2] <- x_bar[1] + sqrt((p*(n-1)/(n-p)) * 
+                                     qf(0.95, p, n-p)) * sqrt(S[1,1]/n)
+
+t2_interval2 <- c(0,0)
+t2_interval2[1] <- x_bar[2] - sqrt((p*(n-1)/(n-p)) * 
+                                     qf(0.95, p, n-p)) * sqrt(S[2,2]/n)
+t2_interval2[2] <- x_bar[2] + sqrt((p*(n-1)/(n-p)) * 
+                                     qf(0.095, p, n-p)) * sqrt(S[2,2]/n)
+
+cat(paste("95% T^2 intervals for mu_1 : ", "[", t2_interval1[1], ", ",
+          t2_interval1[2], "]\n"))
+cat(paste("95% T^2 intervals for mu_2 : ", "[", t2_interval2[1], ", ",
+          t2_interval2[2], "] \n"))
+
+# 95% Bonferroni intervals
+bon_interval1 <- c(0,0)
+bon_interval1[1] <- x_bar[1] - qt(0.95/(2*p), n-1)*sqrt(S[1,1]/n)
+bon_interval1[2] <- x_bar[1] + qt(0.95/(2*p), n-1)*sqrt(S[1,1]/n)
+
+bon_interval2 <- c(0,0)
+bon_interval2[1] <- x_bar[2] - qt(0.95/(2*p), n-1)*sqrt(S[2,2]/n)
+bon_interval2[2] <- x_bar[2] + qt(0.95/(2*p), n-1)*sqrt(S[2,2]/n)
+
+cat(paste("\n95% Bonferroni intervals for mu_1 : ", "[", bon_interval1[1], ", ",
+          bon_interval1[2], "]\n"))
+cat(paste("95% Bonferroni intervals for mu_2 : ", "[", bon_interval2[1], ", ",
+          bon_interval2[2], "]"))
+
+```
+
+## c) Is the bivariate normal distribution a viable population model? Explain with reference to Q-Q plots and a scatter diagram.
+
+```{r}
+
+ggplot(bird_data) + 
+  geom_line(aes(x = Tail_length, y = Wing_length))
+  ggtitle("Scatterplot of birds wing and tail size") 
+
+qqPlot(bird_data$Tail_length, main = "Q-Q Plot Tail Length") 
+qqPlot(bird_data$Wing_length, main = "Q-Q Plot Wing Length")
+
+```
 
 
 

@@ -1,0 +1,530 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Multivariate Statistical Methods - Lab 02},
+            pdfauthor={Lakshidaa Saigiridharan (laksa656)},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Multivariate Statistical Methods - Lab 02}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Lakshidaa Saigiridharan (laksa656)}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{11/30/2019}
+
+
+\begin{document}
+\maketitle
+
+\section{Question 1: Test of
+outliers}\label{question-1-test-of-outliers}
+
+\subsection{Consider again the data set from the T1-9.dat file, National
+track records for women. In the first assignment we studied different
+distance measures between an observation and the sample average vector.
+The most common multivariate residual is the Mahalanobis distance and we
+computed this distance for all
+observations.}\label{consider-again-the-data-set-from-the-t1-9.dat-file-national-track-records-for-women.-in-the-first-assignment-we-studied-different-distance-measures-between-an-observation-and-the-sample-average-vector.-the-most-common-multivariate-residual-is-the-mahalanobis-distance-and-we-computed-this-distance-for-all-observations.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Loading required data}
+\NormalTok{track_data <-}\StringTok{ }\KeywordTok{read.table}\NormalTok{(}\StringTok{"T1-9.dat"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(track_data) =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"country"}\NormalTok{, }\StringTok{"100m"}\NormalTok{, }\StringTok{"200m"}\NormalTok{, }\StringTok{"400m"}\NormalTok{,}
+                   \StringTok{"800m"}\NormalTok{, }\StringTok{"1500m"}\NormalTok{, }\StringTok{"3000m"}\NormalTok{, }\StringTok{"marathon"}\NormalTok{)}
+\NormalTok{track_data}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    country  100m  200m  400m 800m 1500m 3000m marathon
+## 1      ARG 11.57 22.94 52.50 2.05  4.25  9.19   150.32
+## 2      AUS 11.12 22.23 48.63 1.98  4.02  8.63   143.51
+## 3      AUT 11.15 22.70 50.62 1.94  4.05  8.78   154.35
+## 4      BEL 11.14 22.48 51.45 1.97  4.08  8.82   143.05
+## 5      BER 11.46 23.05 53.30 2.07  4.29  9.81   174.18
+## 6      BRA 11.17 22.60 50.62 1.97  4.17  9.04   147.41
+## 7      CAN 10.98 22.62 49.91 1.97  4.00  8.54   148.36
+## 8      CHI 11.65 23.84 53.68 2.00  4.22  9.26   152.23
+## 9      CHN 10.79 22.01 49.81 1.93  3.84  8.10   139.39
+## 10     COL 11.31 22.92 49.64 2.04  4.34  9.37   155.19
+## 11     COK 12.52 25.91 61.65 2.28  4.82 11.10   212.33
+## 12     CRC 11.72 23.92 52.57 2.10  4.52  9.84   164.33
+## 13     CZE 11.09 21.97 47.99 1.89  4.03  8.87   145.19
+## 14     DEN 11.42 23.36 52.92 2.02  4.12  8.71   149.34
+## 15     DOM 11.63 23.91 53.02 2.09  4.54  9.89   166.46
+## 16     FIN 11.13 22.39 50.14 2.01  4.10  8.69   148.00
+## 17     FRA 10.73 21.99 48.25 1.94  4.03  8.64   148.27
+## 18     GER 10.81 21.71 47.60 1.92  3.96  8.51   141.45
+## 19     GBR 11.10 22.10 49.43 1.94  3.97  8.37   135.25
+## 20     GRE 10.83 22.67 50.56 2.00  4.09  8.96   153.40
+## 21     GUA 11.92 24.50 55.64 2.15  4.48  9.71   171.33
+## 22     HUN 11.41 23.06 51.50 1.99  4.02  8.55   148.50
+## 23     INA 11.56 23.86 55.08 2.10  4.36  9.50   154.29
+## 24     IND 11.38 22.82 51.05 2.00  4.10  9.11   158.10
+## 25     IRL 11.43 23.02 51.07 2.01  3.98  8.36   142.23
+## 26     ISR 11.45 23.15 52.06 2.07  4.24  9.33   156.36
+## 27     ITA 11.14 22.60 51.31 1.96  3.98  8.59   143.47
+## 28     JPN 11.36 23.33 51.93 2.01  4.16  8.74   139.41
+## 29     KEN 11.62 23.37 51.56 1.97  3.96  8.39   138.47
+## 30    KORS 11.49 23.80 53.67 2.09  4.24  9.01   146.12
+## 31    KORN 11.80 25.10 56.23 1.97  4.25  8.96   145.31
+## 32     LUX 11.76 23.96 56.07 2.07  4.35  9.21   149.23
+## 33     MAS 11.50 23.37 52.56 2.12  4.39  9.31   169.28
+## 34     MRI 11.72 23.83 54.62 2.06  4.33  9.24   167.09
+## 35     MEX 11.09 23.13 48.89 2.02  4.19  8.89   144.06
+## 36     MYA 11.66 23.69 52.96 2.03  4.20  9.08   158.42
+## 37     NED 11.08 22.81 51.35 1.93  4.06  8.57   143.43
+## 38     NZL 11.32 23.13 51.60 1.97  4.10  8.76   146.46
+## 39     NOR 11.41 23.31 52.45 2.03  4.01  8.53   141.06
+## 40     PNG 11.96 24.68 55.18 2.24  4.62 10.21   221.14
+## 41     PHI 11.28 23.35 54.75 2.12  4.41  9.81   165.48
+## 42     POL 10.93 22.13 49.28 1.95  3.99  8.53   144.18
+## 43     POR 11.30 22.88 51.92 1.98  3.96  8.50   143.29
+## 44     ROM 11.30 22.35 49.88 1.92  3.90  8.36   142.50
+## 45     RUS 10.77 21.87 49.11 1.91  3.87  8.38   141.31
+## 46     SAM 12.38 25.45 56.32 2.29  5.42 13.12   191.58
+## 47     SIN 12.13 24.54 55.08 2.12  4.52  9.94   154.41
+## 48     ESP 11.06 22.38 49.67 1.96  4.01  8.48   146.51
+## 49     SWE 11.16 22.82 51.69 1.99  4.09  8.81   150.39
+## 50     SUI 11.34 22.88 51.32 1.98  3.97  8.60   145.51
+## 51     TPE 11.22 22.56 52.74 2.08  4.38  9.63   159.53
+## 52     THA 11.33 23.30 52.60 2.06  4.38 10.07   162.39
+## 53     TUR 11.25 22.71 53.15 2.01  3.92  8.53   151.43
+## 54     USA 10.49 21.34 48.83 1.94  3.95  8.43   141.16
+\end{verbatim}
+
+\subsection{a) The Mahalanobis distance is approximately chi???square
+distributed, if the data comes from a multivariate normal distribution
+and the number of observations is large. Use this chi??? square
+approximation for testing each observation at the 0.1\% significance
+level and conclude which countries can be regarded as outliers. Should
+you use a multiple???testing correction procedure? Compare the results
+with and without one. Why is (or maybe is not) 0.1\% a sensible
+significance level for this
+task?}\label{a-the-mahalanobis-distance-is-approximately-chisquare-distributed-if-the-data-comes-from-a-multivariate-normal-distribution-and-the-number-of-observations-is-large.-use-this-chi-square-approximation-for-testing-each-observation-at-the-0.1-significance-level-and-conclude-which-countries-can-be-regarded-as-outliers.-should-you-use-a-multipletesting-correction-procedure-compare-the-results-with-and-without-one.-why-is-or-maybe-is-not-0.1-a-sensible-significance-level-for-this-task}
+
+The Mahalanobis distance is represented as,
+\[d^2_M(\vec{x} - \bar{x}) = (\vec{x} - \bar{x})^T \boldsymbol{C}^{-1}(\vec{x} - \bar{x}),\]
+where \textbf{C} is the sample covariance matrix calculated from the
+data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{track_mat_data <-}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(track_data[,}\DecValTok{2}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\KeywordTok{rownames}\NormalTok{(track_mat_data) <-}\StringTok{ }\NormalTok{track_data[,}\DecValTok{1}\NormalTok{]}
+\CommentTok{#track_mat_data <- scale(track_mat_data, scale = FALSE)}
+\NormalTok{n <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(track_mat_data)}
+
+\NormalTok{sample_variance =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X) \{}
+  
+\NormalTok{  X =}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(X)}
+  
+\NormalTok{  identity =}\StringTok{ }\KeywordTok{diag}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(X))}
+\NormalTok{  one_n =}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DataTypeTok{nrow=}\KeywordTok{nrow}\NormalTok{(X), }\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{)}
+  
+\NormalTok{  inter =}\StringTok{  }\NormalTok{identity }\OperatorTok{-}\StringTok{ }\DecValTok{1}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(X) }\OperatorTok{*}\StringTok{ }\NormalTok{(one_n }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(one_n)) }
+  
+  \KeywordTok{return}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(X) }\OperatorTok{*}\StringTok{ }\NormalTok{(}\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{inter }\OperatorTok{%*%}\StringTok{ }\NormalTok{X))}
+\NormalTok{\}}
+
+\NormalTok{mahalanobis_distance =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X) \{}
+\NormalTok{  X =}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(X)}
+  
+\NormalTok{  V =}\StringTok{ }\KeywordTok{sample_variance}\NormalTok{(X)}
+\NormalTok{  ident =}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DataTypeTok{nrow=}\KeywordTok{nrow}\NormalTok{(X), }\DataTypeTok{ncol=}\KeywordTok{nrow}\NormalTok{(X))}
+\NormalTok{  mu =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(X) }\OperatorTok{*}\StringTok{ }\NormalTok{(}\KeywordTok{t}\NormalTok{(ident) }\OperatorTok{%*%}\StringTok{ }\NormalTok{X)}
+  
+\NormalTok{  X_centered =}\StringTok{ }\NormalTok{X }\OperatorTok{-}\StringTok{ }\NormalTok{mu}
+  
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{diag}\NormalTok{(X_centered }\OperatorTok{%*%}\StringTok{ }\KeywordTok{solve}\NormalTok{(V) }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(X_centered)))}
+\NormalTok{\}}
+
+\NormalTok{m_dist <-}\StringTok{ }\KeywordTok{mahalanobis_distance}\NormalTok{(track_data[,}\DecValTok{2}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+\KeywordTok{rownames}\NormalTok{(track_mat_data[}\KeywordTok{which}\NormalTok{(m_dist }\OperatorTok{>}\StringTok{ }\KeywordTok{qchisq}\NormalTok{(}\FloatTok{0.99}\NormalTok{, }\KeywordTok{ncol}\NormalTok{(track_mat_data))),])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "COK"  "KORN" "PNG"  "SAM"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{alpha =}\StringTok{ }\FloatTok{0.001}
+\NormalTok{outlier_indices =}\StringTok{ }\KeywordTok{which}\NormalTok{(}\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{pchisq}\NormalTok{(m_dist, }\KeywordTok{ncol}\NormalTok{(track_data) }\OperatorTok{-}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{<}\StringTok{ }\NormalTok{alpha)}
+\NormalTok{track_data}\OperatorTok{$}\NormalTok{country[outlier_indices]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] KORN PNG  SAM 
+## 54 Levels: ARG AUS AUT BEL BER BRA CAN CHI CHN COK COL CRC CZE DEN ... USA
+\end{verbatim}
+
+\subsection{b) One outlier is North Korea. This country is not an
+outlier with the Euclidean distance. Try to explain these seemingly
+contradictory
+results.}\label{b-one-outlier-is-north-korea.-this-country-is-not-an-outlier-with-the-euclidean-distance.-try-to-explain-these-seemingly-contradictory-results.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{euclidean_distance <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(data, X)\{}
+\NormalTok{  X <-}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(X)}
+\NormalTok{  n <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(X)}
+\NormalTok{  p <-}\StringTok{ }\KeywordTok{ncol}\NormalTok{(X)}
+\NormalTok{  matrix_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,n}\OperatorTok{*}\NormalTok{n), }\DataTypeTok{ncol =}\NormalTok{ n, }\DataTypeTok{nrow =}\NormalTok{ n)}
+\NormalTok{  sample_mean <-}\StringTok{ }\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{matrix_}\DecValTok{1} \OperatorTok{/}\StringTok{ }\NormalTok{n}
+
+\NormalTok{  d <-}\StringTok{ }\NormalTok{X }\OperatorTok{-}\StringTok{ }\KeywordTok{t}\NormalTok{(sample_mean)}
+\NormalTok{  dist <-}\StringTok{ }\NormalTok{d }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(d)}
+  \KeywordTok{rownames}\NormalTok{(dist) <-}\StringTok{ }\NormalTok{X[,}\DecValTok{1}\NormalTok{]}
+
+\NormalTok{  diagonal <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{diag}\NormalTok{(dist))}
+\NormalTok{  diag_df <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{Country =}\NormalTok{ data[,}\DecValTok{1}\NormalTok{], }\DataTypeTok{Diag_value =}\NormalTok{ diagonal)}
+\NormalTok{  diag_df[}\KeywordTok{order}\NormalTok{(diag_df}\OperatorTok{$}\NormalTok{Diag_value, }\DataTypeTok{decreasing =} \OtherTok{TRUE}\NormalTok{),]}
+\NormalTok{\}}
+
+\NormalTok{euc_dist <-}\StringTok{ }\KeywordTok{euclidean_distance}\NormalTok{(track_data, track_data[,}\DecValTok{2}\OperatorTok{:}\DecValTok{8}\NormalTok{])}
+
+\KeywordTok{cat}\NormalTok{(}\StringTok{"Countries sorted in decreasing order of their euclidean distance : }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Countries sorted in decreasing order of their euclidean distance :
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{euc_dist}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Country Diag_value
+## 40     PNG  67.627962
+## 11     COK  59.615175
+## 46     SAM  38.524758
+## 5      BER  20.616060
+## 19     GBR  18.591462
+## 21     GUA  18.158217
+## 33     MAS  15.677070
+## 29     KEN  15.177242
+## 9      CHN  14.486679
+## 28     JPN  14.215076
+## 34     MRI  13.750148
+## 18     GER  13.039467
+## 54     USA  13.023696
+## 15     DOM  12.939488
+## 45     RUS  12.740366
+## 39     NOR  12.582623
+## 41     PHI  12.204487
+## 25     IRL  11.451565
+## 44     ROM  11.370744
+## 12     CRC  10.794572
+## 2      AUS  10.703279
+## 4      BEL  10.608378
+## 43     POR  10.351343
+## 37     NED  10.231711
+## 27     ITA  10.201641
+## 35     MEX  10.054448
+## 42     POL   9.896828
+## 31    KORN   9.548406
+## 13     CZE   9.408675
+## 52     THA   8.851508
+## 50     SUI   8.157574
+## 30    KORS   7.717411
+## 48     ESP   7.546571
+## 38     NZL   7.177852
+## 17     FRA   6.670036
+## 6      BRA   6.382646
+## 32     LUX   6.069117
+## 51     TPE   6.014398
+## 16     FIN   5.978177
+## 7      CAN   5.718796
+## 22     HUN   5.173356
+## 36     MYA   4.940436
+## 24     IND   4.588885
+## 14     DEN   4.402629
+## 47     SIN   3.695017
+## 1      ARG   3.352526
+## 23     INA   3.287141
+## 49     SWE   3.275672
+## 10     COL   2.851967
+## 26     ISR   2.755565
+## 53     TUR   2.587504
+## 8      CHI   2.329972
+## 3      AUT   1.656308
+## 20     GRE   1.610905
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{cat}\NormalTok{(}\StringTok{"Position of North Korea in this list : "}\NormalTok{, }\KeywordTok{which}\NormalTok{(euc_dist}\OperatorTok{$}\NormalTok{Country }\OperatorTok{==}\StringTok{ "KORN"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Position of North Korea in this list :  28
+\end{verbatim}
+
+On computing the Euclidean distance of the countries, it can be seen
+that North Korea is not an outlier. This is because the Euclidean
+distance computation treats data equally. Whereas, the Mahalanobis
+distance computation takes the covariance of each variable and obtains
+the correlation among variables.
+
+\section{Question 2: Test, confidence region and confidence intervals
+for a mean
+vector}\label{question-2-test-confidence-region-and-confidence-intervals-for-a-mean-vector}
+
+\subsection{Look at the bird data in file T5-12.dat and solve Exercise
+5.20 of Johnson, Wichern. Do not use any extra R package or built???in
+test but code all required matrix calculations. You MAY NOT use
+loops!}\label{look-at-the-bird-data-in-file-t5-12.dat-and-solve-exercise-5.20-of-johnson-wichern.-do-not-use-any-extra-r-package-or-builtin-test-but-code-all-required-matrix-calculations.-you-may-not-use-loops}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Importing the required data}
+\NormalTok{bird_data <-}\StringTok{ }\KeywordTok{read.table}\NormalTok{(}\StringTok{"T5-12.DAT"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(bird_data) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Tail_length"}\NormalTok{, }\StringTok{"Wing_length"}\NormalTok{)}
+\KeywordTok{head}\NormalTok{(bird_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tail_length Wing_length
+## 1         191         284
+## 2         197         285
+## 3         208         288
+## 4         180         273
+## 5         180         275
+## 6         188         280
+\end{verbatim}
+
+\subsection{\texorpdfstring{a) Find and sketch the 95\% confidence
+ellipse for the population means \(\mu_1\) and \(\mu_2\). Suppose it is
+known that \(\mu_1 = 190\) mm and \(\mu_2 = 275\) mm for male
+hook-billed kites. Are these plausible values for the mean tail length
+and mean wing length for the female birds?
+Explain.}{a) Find and sketch the 95\% confidence ellipse for the population means \textbackslash{}mu\_1 and \textbackslash{}mu\_2. Suppose it is known that \textbackslash{}mu\_1 = 190 mm and \textbackslash{}mu\_2 = 275 mm for male hook-billed kites. Are these plausible values for the mean tail length and mean wing length for the female birds? Explain.}}\label{a-find-and-sketch-the-95-confidence-ellipse-for-the-population-means-mu_1-and-mu_2.-suppose-it-is-known-that-mu_1-190-mm-and-mu_2-275-mm-for-male-hook-billed-kites.-are-these-plausible-values-for-the-mean-tail-length-and-mean-wing-length-for-the-female-birds-explain.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{alpha <-}\StringTok{ }\FloatTok{0.95}
+
+\CommentTok{# Given mu_0 values (Center of ellipse)}
+\NormalTok{mu_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\DecValTok{190}
+\NormalTok{mu_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\DecValTok{275}
+\NormalTok{mu_}\DecValTok{0}\NormalTok{ <-}\StringTok{ }\KeywordTok{c}\NormalTok{(mu_}\DecValTok{1}\NormalTok{, mu_}\DecValTok{2}\NormalTok{)}
+
+\NormalTok{n <-}\StringTok{ }\KeywordTok{nrow}\NormalTok{(bird_data)}
+\NormalTok{p <-}\StringTok{ }\KeywordTok{ncol}\NormalTok{(bird_data)}
+
+\NormalTok{x_bar <-}\StringTok{ }\KeywordTok{colMeans}\NormalTok{(bird_data)}
+\NormalTok{S <-}\StringTok{ }\KeywordTok{sample_variance}\NormalTok{(bird_data)}
+\NormalTok{S_inverse <-}\StringTok{ }\KeywordTok{solve}\NormalTok{(S)}
+
+\NormalTok{eigen_values <-}\StringTok{ }\KeywordTok{eigen}\NormalTok{(S)}\OperatorTok{$}\NormalTok{values}
+\NormalTok{eigen_vectors <-}\StringTok{ }\KeywordTok{eigen}\NormalTok{(S)}\OperatorTok{$}\NormalTok{vectors}
+
+\NormalTok{chi_sq <-}\StringTok{ }\KeywordTok{qchisq}\NormalTok{(alpha, p)}
+\NormalTok{c <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(chi_sq)   }\CommentTok{# Expression (4-8)}
+
+\CommentTok{# Half lengths}
+\NormalTok{major_len <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(eigen_values[}\DecValTok{1}\NormalTok{]) }\OperatorTok{*}\StringTok{ }\NormalTok{c    }\CommentTok{# length of major axes}
+\NormalTok{minor_len <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(eigen_values[}\DecValTok{2}\NormalTok{]) }\OperatorTok{*}\StringTok{ }\NormalTok{c    }\CommentTok{# length of minor axes}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{\texorpdfstring{b) Construct the simultaneous 95\% \(T^2\)
+intervals for \(\mu_1\) and \(\mu_2\) and the 95\% Bonferroni intervals
+for \(\mu_1\) and \(\mu_2\).Compare the two sets of intervals. What
+advantage, if any, do the \(T^2\) intervals have over the Bonferroni
+intervals?}{b) Construct the simultaneous 95\% T\^{}2 intervals for \textbackslash{}mu\_1 and \textbackslash{}mu\_2 and the 95\% Bonferroni intervals for \textbackslash{}mu\_1 and \textbackslash{}mu\_2.Compare the two sets of intervals. What advantage, if any, do the T\^{}2 intervals have over the Bonferroni intervals?}}\label{b-construct-the-simultaneous-95-t2-intervals-for-mu_1-and-mu_2-and-the-95-bonferroni-intervals-for-mu_1-and-mu_2.compare-the-two-sets-of-intervals.-what-advantage-if-any-do-the-t2-intervals-have-over-the-bonferroni-intervals}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# 95% T^2 intervals}
+\NormalTok{t2_interval1 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{t2_interval1[}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{1}\NormalTok{] }\OperatorTok{-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((p}\OperatorTok{*}\NormalTok{(n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\NormalTok{(n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }
+\StringTok{                                     }\KeywordTok{qf}\NormalTok{(}\FloatTok{0.05}\NormalTok{, p, n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+\NormalTok{t2_interval1[}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((p}\OperatorTok{*}\NormalTok{(n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\NormalTok{(n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }
+\StringTok{                                     }\KeywordTok{qf}\NormalTok{(}\FloatTok{0.05}\NormalTok{, p, n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+
+\NormalTok{t2_interval2 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{t2_interval2[}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{2}\NormalTok{] }\OperatorTok{-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((p}\OperatorTok{*}\NormalTok{(n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\NormalTok{(n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }
+\StringTok{                                     }\KeywordTok{qf}\NormalTok{(}\FloatTok{0.05}\NormalTok{, p, n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+\NormalTok{t2_interval2[}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((p}\OperatorTok{*}\NormalTok{(n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\NormalTok{(n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }
+\StringTok{                                     }\KeywordTok{qf}\NormalTok{(}\FloatTok{0.05}\NormalTok{, p, n}\OperatorTok{-}\NormalTok{p)) }\OperatorTok{*}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+
+\KeywordTok{cat}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"95% T^2 intervals for mu_1 : "}\NormalTok{, }\StringTok{"["}\NormalTok{, t2_interval1[}\DecValTok{1}\NormalTok{], }\StringTok{", "}\NormalTok{,}
+\NormalTok{          t2_interval1[}\DecValTok{2}\NormalTok{], }\StringTok{"]}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% T^2 intervals for mu_1 :  [ 193.097227596845 ,  194.147216847599 ]
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{cat}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"95% T^2 intervals for mu_2 : "}\NormalTok{, }\StringTok{"["}\NormalTok{, t2_interval2[}\DecValTok{1}\NormalTok{], }\StringTok{", "}\NormalTok{,}
+\NormalTok{          t2_interval2[}\DecValTok{2}\NormalTok{], }\StringTok{"]"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% T^2 intervals for mu_2 :  [ 279.087688286496 ,  280.46786726906 ]
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# 95% Bonferroni intervals}
+\NormalTok{bon_interval1 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{bon_interval1[}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{1}\NormalTok{] }\OperatorTok{-}\StringTok{ }\KeywordTok{qt}\NormalTok{(}\FloatTok{0.05}\OperatorTok{/}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\NormalTok{p), n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+\NormalTok{bon_interval1[}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\KeywordTok{qt}\NormalTok{(}\FloatTok{0.05}\OperatorTok{/}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\NormalTok{p), n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+
+\NormalTok{bon_interval2 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{bon_interval2[}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{2}\NormalTok{] }\OperatorTok{-}\StringTok{ }\KeywordTok{qt}\NormalTok{(}\FloatTok{0.05}\OperatorTok{/}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\NormalTok{p), n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+\NormalTok{bon_interval2[}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\NormalTok{x_bar[}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\KeywordTok{qt}\NormalTok{(}\FloatTok{0.05}\OperatorTok{/}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\NormalTok{p), n}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(S[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{n)}
+
+\KeywordTok{cat}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"95% Bonferroni intervals for mu_1 : "}\NormalTok{, }\StringTok{"["}\NormalTok{, bon_interval1[}\DecValTok{1}\NormalTok{], }\StringTok{", "}\NormalTok{,}
+\NormalTok{          bon_interval1[}\DecValTok{2}\NormalTok{], }\StringTok{"]}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% Bonferroni intervals for mu_1 :  [ 197.380417947191 ,  189.864026497254 ]
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{cat}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"95% Bonferroni intervals for mu_2 : "}\NormalTok{, }\StringTok{"["}\NormalTok{, bon_interval2[}\DecValTok{1}\NormalTok{], }\StringTok{", "}\NormalTok{,}
+\NormalTok{          bon_interval2[}\DecValTok{2}\NormalTok{], }\StringTok{"]"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% Bonferroni intervals for mu_2 :  [ 284.717811924069 ,  274.837743631486 ]
+\end{verbatim}
+
+\subsection{c) Is the bivariate normal distribution a viable population
+model? Explain with reference to Q-Q plots and a scatter
+diagram.}\label{c-is-the-bivariate-normal-distribution-a-viable-population-model-explain-with-reference-to-q-q-plots-and-a-scatter-diagram.}
+
+
+\end{document}
