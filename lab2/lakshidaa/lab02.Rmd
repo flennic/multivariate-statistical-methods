@@ -1,0 +1,100 @@
+---
+title: "Multivariate Statistical Methods - Lab 02"
+author: "Lakshidaa Saigiridharan (laksa656)"
+date: "11/30/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1: Test of outliers
+
+## Consider again the data set from the T1-9.dat file, National track records for women. In the first assignment we studied different distance measures between an observation and the sample average vector. The most common multivariate residual is the Mahalanobis distance and we computed this distance for all observations.
+
+```{r}
+# Loading required data
+track_data <- read.table("T1-9.dat")
+colnames(track_data) = c("country", "100m", "200m", "400m",
+                   "800m", "1500m", "3000m", "marathon")
+track_data
+```
+
+## a) The Mahalanobis distance is approximately chi???square distributed, if the data comes from a multivariate normal distribution and the number of observations is large. Use this chi??? square approximation for testing each observation at the 0.1% significance level and conclude which countries can be regarded as outliers. Should you use a multiple???testing correction procedure? Compare the results with and without one. Why is (or maybe is not) 0.1% a sensible significance level for this task?
+
+The Mahalanobis distance is represented as,
+$$d^2_M(\vec{x} - \bar{x}) = (\vec{x} - \bar{x})^T \boldsymbol{C}^{-1}(\vec{x} - \bar{x}),$$
+where **C** is the sample covariance matrix calculated from the data.
+
+```{r}
+track_mat_data <- as.matrix(track_data[,2:8])
+rownames(track_mat_data) <- track_data[,1]
+#track_mat_data <- scale(track_mat_data, scale = FALSE)
+n <- nrow(track_mat_data)
+
+sample_variance = function(X) {
+  
+  X = as.matrix(X)
+  
+  identity = diag(nrow(X))
+  one_n = matrix(1, nrow=nrow(X), ncol=1)
+  
+  inter =  identity - 1/nrow(X) * (one_n %*% t(one_n)) 
+  
+  return(1/nrow(X) * (t(X) %*% inter %*% X))
+}
+
+mahalanobis_distance = function(X) {
+  X = as.matrix(X)
+  
+  V = sample_variance(X)
+  ident = matrix(1, nrow=nrow(X), ncol=nrow(X))
+  mu = 1/nrow(X) * (t(ident) %*% X)
+  
+  X_centered = X - mu
+  
+  return(diag(X_centered %*% solve(V) %*% t(X_centered)))
+}
+
+m_dist <- mahalanobis_distance(track_data[,2:8])
+rownames(track_mat_data[which(m_dist > qchisq(0.99, ncol(track_mat_data))),])
+
+alpha = 0.001
+outlier_indices = which(1 - pchisq(m_dist, ncol(track_data) - 1) < alpha)
+track_data$country[outlier_indices]
+
+```
+
+## b) One outlier is North Korea. This country is not an outlier with the Euclidean distance. Try to explain these seemingly contradictory results.
+
+```{r}
+
+euclidean_distance <- function(data, X){
+  X <- as.matrix(X)
+  n <- nrow(X)
+  p <- ncol(X)
+  matrix_1 <- matrix(rep(1,n*n), ncol = n, nrow = n)
+  sample_mean <- t(X) %*% matrix_1 / n
+
+  d <- X - t(sample_mean)
+  dist <- d %*% t(d)
+  rownames(dist) <- X[,1]
+
+  diagonal <- sqrt(diag(dist))
+  diag_df <- data.frame(Country = data[,1], Diag_value = diagonal)
+  diag_df[order(diag_df$Diag_value, decreasing = TRUE),]
+}
+
+euc_dist <- euclidean_distance(track_data, track_data[,2:8])
+
+cat("Countries sorted in decreasing order of their euclidean distance : \n")
+euc_dist
+
+cat("Position of North Korea in this list : ", which(euc_dist$Country == "KORN"))
+```
+
+On computing the Euclidean distance of the countries, it can be seen that North Korea is not an outlier. This is because the Euclidean distance computation treats data equally. Whereas, the Mahalanobis distance computation takes the covariance of each variable and obtains the correlation among variables. 
+
+
+
