@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(aplpack) # for Chernoff faces
 library(gridExtra)
+library(GGally)
 ```
 
 
@@ -21,6 +22,7 @@ library(gridExtra)
 ```{r}
 
 trackData = read.table("T1-9.dat")
+
 colnames(trackData) = c("Countries", "100m", "200m", "400m", "800m", "1500m", "3000m", "Marathon")
 samplesnames = c("100m", "200m", "400m", "800m", "1500m", "3000m", "Marathon")
 # trackData[,5:8] = trackData[,5:8]*60
@@ -131,6 +133,12 @@ trackData_Cor = cor(trackData[,2:8])
 
 ```{r}
 heatmap(trackData_Cor, col = terrain.colors(256), Rowv=NA,Colv=NA, revC=T)
+
+# library(viridis)
+# ggplot(trackData_Cor, aes(X, Y, fill= Z)) + 
+#   geom_tile() +
+#   scale_fill_viridis(discrete=FALSE) +
+#   theme_ipsum()
 ```
 
 Each square shows the correlation between the variables on each axis. Correlation ranges from -1 to +1. Values closer to zero means there is no linear trend between the two variables. The close to 1 the correlation is the more positively correlated they are; that is as one increases so does the other and the closer to 1 the stronger this relationship is. A correlation closer to -1 is similar, but instead of both increasing one variable will decrease as the other increases. The diagonals are all 1/dark green because those squares are correlating each variable to itself (so it's a perfect correlation). For the rest the larger the number and darker the color the higher the correlation between the two variables. The plot is also symmetrical about the diagonal since the same two variables are being paired together in those squares.
@@ -139,6 +147,12 @@ Each square shows the correlation between the variables on each axis. Correlatio
 
 ```{r}
 pairs(trackData[,2:8], pch = ".", cex = 1.5)
+```
+
+```{r warning=F, message=F}
+
+ggpairs(trackData[,2:8])
+
 ```
 
 ## c)
@@ -185,9 +199,9 @@ for(i in 1:7){
  
  extreme_high[i] = list(i = t_high)
  extreme_lower[i] = list(i = t_lower)
- 
- 
 }
+
+#intersect(extreme_high[[1]],extreme_high[[2]])
 
 ```
 
@@ -230,7 +244,6 @@ order_me(euc_Vec)
 ## c) Unnormalized
 
 ```{r}
-
 unnormal = function(obs){
   
   IdentityMat = diag(nrow(obs))
