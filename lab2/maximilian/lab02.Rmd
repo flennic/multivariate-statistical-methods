@@ -20,6 +20,8 @@ output:
 ```{r setup, include=FALSE}
 library(viridis)
 library(ggplot2)
+library(heplots)
+library(GGally)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -125,11 +127,6 @@ track_times$country[outlier_indeces]
 
 ```
 
-
-## Chi–Square Approximation for Outliers
-
-The Mahalanobis distance is approximately chi–square distributed, if the data comes from a multivariate normal distribution and the number of observations is large. Use this chi–square approximation for testing each observation at the 0.1 percent significance level and conclude which countries can be regarded as outliers. Should you use a multiple–testing correction procedure? Compare the results with and without one. Why is (or maybe is not) 0.1 percent a sensible significance level for this task?
-
 ## Different Outlier Reasoning
 
 One outlier is North Korea. This country is not an outlier with the Euclidean distance. Try to explain these seemingly contradictory result.
@@ -146,15 +143,158 @@ We will look at a data set on Egyptian skull measurements (published in 1905 and
 
 Explore the data first and present plots that you find informative.
 
+**Answer:** We first take a glimpse at the data.
+
+```{r}
+head(Skulls)
+```
+
+Next, we will look at the 
+
+```{r, warning=FALSE, message=FALSE}
+ggpairs(Skulls)
+```
+
+Looking at the different distributions of our features we see that all of them are clustered around a mean. `mb` and `bl` seem to be symmetrical, whereas `bh` and `nh` seem not. Looking at the scatterplots and the corresponding correlations we seeh that aprt from `bh` with `mb` and `nh` and `bl` all of them have a slight correlation. We also see that we have the same amount of epochs, so they're "distributed" normally. The epochs are:
+
+```{r}
+unique(Skulls$epoch)
+```
+
+
 ## Differing of Mean Vectors
 
 Now we are interested whether there are differences between the epochs. Do the mean vectors differ? Study this question and justify your conclusions.
+
+**Task:** The mean vectors do defer except nasal height. All other means are different between the epochs with a significante level between of 5 percent.
+
+```{r}
+
+res = manova(cbind(mb, bh, bl, nh) ~ epoch, Skulls)
+res
+
+```
+
+```{r}
+
+summary.aov(res)
+
+```
 
 ## Confidence Intervals
 
 If the means differ between epochs compute and report simultaneous confidence intervals. Inspect the residuals whether they have mean 0 and if they deviate from normality (graphically).
 
+**Answer:** The means differ, so we calculate the confidence intervals for all groups and feature combinations. A row in teh result (combination, feature, group A and group B) is signinficant with $\alpha = 0.05$ if the confidence interval does **not** cover 0.
+
+```{r}
+
+```
+
+
 **Tip:** It might be helpful for you to read Exercise 6.24 of *Johnson, Wichern*. The function `manova()` can be useful for this question and the residuals can be found in the `$res` field.
+
+```{r}
+
+# k and l are the groups
+# i is the feature
+
+ci_custom = function(data, p, g, n, W, l, k, i, alpha = 0.05) {
+  
+  # Define groups
+  group = unique(data$epoch)[i]
+  group_data = data[data$epoch == group,]
+  group_k = unique(data$epoch)[k]
+  group_l = unique(data$epoch)[l]
+  group_data_k = data[data$epoch == group_k,]
+  group_data_l = data[data$epoch == group_l,]
+  
+  n_k = nrow(group_data_k)
+  n_l = nrow(group_data_l)
+  
+  x_i = mean(group_data_k[,i+1]) - mean(group_data_l[,i+1])
+  t_crit = qt(alpha/(p*g*(g-1)), df = (n-g))
+
+  var_i = sqrt(diag(W)[i]/(n-g) * (1/n_k + 1/n_l)) 
+  abs_i = abs(t_crit * var_i)
+  
+  res = c(x_i - abs_i, x_i + abs_i)
+  names(res) = c("lower", "upper")
+  
+  return(res)
+}
+
+scite = function(data, i) {
+  
+  # Static Parameters
+  p = ncol(data) - 1
+  g = length(unique(Skulls$epoch))
+  n = nrow(data)
+  
+  # Calculation of W
+  
+  W = 0
+  
+  for (group in unique(Skulls$epoch)) {
+    
+    group_data = Skulls[Skulls$epoch == group,]
+    S = sample_variance(group_data[,2:5])
+    W = W + (nrow(group_data) - 1) * S
+  }
+  
+  df = data.frame()
+  
+  for (k in 2:length(unique(Skulls$epoch))) {
+    for (l in 1:max((k-1), 1)) {
+      row = c(i, k, l, ci_custom(data=data, p=p, g=g, n, W=W, l=l, k=k, i=i))
+      df = rbind(df, row)
+    }
+  }
+
+  colnames(df) = c("i", "k", "l", "lower", "upper")
+  
+  #res = ci_custom(data=data, p=p, g=g, n, W=W, l=1, k=3, i=2)
+  
+  return(df)
+}
+
+```
+
+### Variable i=1 (mb)
+
+```{r}
+
+df = scite(Skulls, 1)
+df
+
+```
+
+### Variable i=2 (bh)
+
+```{r}
+
+df = scite(Skulls, 2)
+df
+
+```
+
+### Variable i=3 (bl)
+
+```{r}
+
+df = scite(Skulls, 3)
+df
+
+```
+
+### Variable i=4 (nh)
+
+```{r}
+
+df = scite(Skulls, 4)
+df
+
+```
 
 # Source Code
 
