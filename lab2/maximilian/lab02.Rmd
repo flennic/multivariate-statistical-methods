@@ -185,14 +185,9 @@ summary.aov(res)
 
 If the means differ between epochs compute and report simultaneous confidence intervals. Inspect the residuals whether they have mean 0 and if they deviate from normality (graphically).
 
-**Answer:** The means differ, so we calculate the confidence intervals for all groups and feature combinations. A row in teh result (combination, feature, group A and group B) is signinficant with $\alpha = 0.05$ if the confidence interval does **not** cover 0.
-
-```{r}
-
-```
-
-
 **Tip:** It might be helpful for you to read Exercise 6.24 of *Johnson, Wichern*. The function `manova()` can be useful for this question and the residuals can be found in the `$res` field.
+
+**Answer:** The means differ, so we calculate the confidence intervals for all groups and feature combinations. A row in teh result (combination, feature, group A and group B) is signinficant with $\alpha = 0.05$ if the confidence interval does **not** cover 0.
 
 ```{r}
 
@@ -202,8 +197,6 @@ If the means differ between epochs compute and report simultaneous confidence in
 ci_custom = function(data, p, g, n, W, l, k, i, alpha = 0.05) {
   
   # Define groups
-  group = unique(data$epoch)[i]
-  group_data = data[data$epoch == group,]
   group_k = unique(data$epoch)[k]
   group_l = unique(data$epoch)[l]
   group_data_k = data[data$epoch == group_k,]
@@ -219,7 +212,6 @@ ci_custom = function(data, p, g, n, W, l, k, i, alpha = 0.05) {
   abs_i = abs(t_crit * var_i)
   
   res = c(x_i - abs_i, x_i + abs_i)
-  names(res) = c("lower", "upper")
   
   return(res)
 }
@@ -294,6 +286,12 @@ df
 df = scite(Skulls, 4)
 df
 
+```
+
+Looking at the residuals we think that most of them look (almost) normal.
+
+```{r, warning=FALSE, message=FALSE}
+ggpairs(data.frame(res$residuals))
 ```
 
 # Source Code
