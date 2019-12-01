@@ -115,7 +115,7 @@ ggplot() +
 
 We define $\alpha = 0.001$ and we check for each observation if it lies within the $1 - \alpha$ percentile of the $\chi^2(\nu)$-distribution with `r nu` degrees of freedom. Finally we check which countries are the outliers. Our findings match the results from the previous lab.
 
-**TODO:** multiple–testing correction, explain the significance level
+Below is the test without any multiple test correction. In this case the countries KORN, PNG and SAM are regarded as outliers.
 
 ```{r}
 
@@ -127,9 +127,29 @@ track_times$country[outlier_indeces]
 
 ```
 
+Below is the test results with the correction for multiple tests. In this case the only country that is an outlier is SAM.
+
+```{r}
+
+alpha = 0.001 / nrow(track_times)
+
+outlier_indeces = 1 - pchisq(D, nu) < alpha
+
+track_times$country[outlier_indeces]
+
+```
+
+Multiple test correction should be used because we are doing multiple test at the same time, so the original significance level $\alpha$ should be adjusted to reflect that we are comparing multiple countries.
+
+In this case the significance level $\alpha = 0.1%$ it depends on what is to be considered an outlier. In this case it seems reasonable since we want countries were its distance is way off from the other ones. So 0.01% seems reasonable. But this also depends on the application.
+
+
 ## Different Outlier Reasoning
 
 One outlier is North Korea. This country is not an outlier with the Euclidean distance. Try to explain these seemingly contradictory result.
+
+The contradictory results arise from the fact that the euclidean distance doesn't normalize the data give the variations on the observations (variance and covariance) while the Mahalanobis distance does consider these variations. This is why we are getting contradictory results.
+
 
 # Test, Confidence Region and Confidence Intervals for a Mean Vector
 
