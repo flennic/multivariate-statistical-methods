@@ -57,7 +57,6 @@ Mahalanobis_vec = Mahalanobis(obs)
 ndf = dim(trackData)[2] - 1 #degrees of freedom
 
 alpha = 0.001 # 0.1% significance level
-
 indices = 1-pchisq(Mahalanobis_vec, df=ndf) < alpha
 trackData$Countries[indices]
 ```
@@ -75,6 +74,8 @@ source: https://waterprogramming.wordpress.com/2018/07/23/multivariate-distances
 # Question 2: Test, confidence region and confidence inter- vals for a mean vector
 
 ## Find and sketch 95% confidence for Eillpse
+
+Find and sketch 95% confidence for Eillpse for the population mu1=190mm and mu2=275mm for male hook-billed kites. Are these plaussible values for the mean tail length and wing length for the female birds?
 ```{r}
 library(ellipse)
 birddata = read.table("T5-12.DAT")
@@ -111,11 +112,11 @@ Tsq = n * (meanMu) %*% solve(S) %*% t(meanMu)
 F_val =  qf(0.95,df1=p, df=n-p) * (p*(n-1)/(n-p)) #5% significance level
 
 cat("Is T^2 less than F_val? =",Tsq<F_val)
-
+cat("\nThus, we do not reject the NULL Hypothesis(H_0)")
 # We conclude that it is in the region as  Tsq is less than F_val
 
 axes_len = function(lam,n,p){
-  sqrt(lam)* sqrt((p*(n-1))/ (n*(n-p)) * qf(0.95,df1=p, df=n-p))
+  sqrt(lam)* sqrt((p*(n-1))/ (n*(n-p)) * qf(0.95,df1=p, df2=(n-p)))
 }
 
 l1=axes_len(lam=eigenValVec$values[1],n=n,p=p)
@@ -127,8 +128,35 @@ l2=axes_len(lam=eigenValVec$values[2],n=n,p=p)
 # length(c(mu$mu1,mu$mu2))
 
 
-plot(ellipse(S,center = c(mu$mu1,mu$mu2),radius= c(l1,l2)),type = 'l')
+```
+Are these plaussible values for the mean tail length and wing length for the female birds?
+**Answer** It is quite plaussible as female hook-billed vary a lot in size just like the male hook-billed. Sometimes the juveniles are bigger than the size than they are supposed to be. And thus the mean size of tail length and wing length could be same for the female hook-billed kites.
 
+```{r}
+
+rotate = function(a,b,c){
+  res = list()
+  
+  if (b==0 & a >= c){res$angle = 0} 
+  else if (b==0 & a<c) { res$angle = (pi/2)}
+  else{ res$angle = atan2(eigenValVec$values[1]-a, b)}
+
+  res$lam1 = (a+c)/2 + sqrt(((a-c)/2)^2 + b^2)
+  res$lam2 = (a+c)/2 - sqrt(((a-c)/2)^2 + b^2)
+  
+  return(res)
+}
+# S = matrix(c(4,-2,-2,4),byrow = T, nrow = 2)
+res = rotate(S[1,1],S[1,2],S[2,2])
+
+chi95<-qchisq(.95,df=2)
+axes95 <- sqrt(eigenValVec$values) * sqrt(chi95)
+
+
+library(ggforce)
+ggplot()+
+  geom_point(aes(birddata$V1, birddata$V2))+
+  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=axes95[1], b=axes95[2], angle = res$angle ))
 ```
 
 
@@ -160,11 +188,11 @@ CI
 set.seed(12345)
 ben_alpha = 0.95
 Ber_CI = NULL
-Ber_CI$Lower = x_bar$X1 - qt(c(0.95), df=2*p-1)  * sqrt(S[1,1]/n)
-Ber_CI$Upper= x_bar$X1 + qt(c(0.95), df=2*p-1)  * sqrt(S[1,1]/n)
+Ber_CI$Lower = x_bar$X1 - abs(qt(0.05/2*p, df=n-1))  * sqrt(S[1,1]/n)
+Ber_CI$Upper= x_bar$X1 + abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[1,1]/n)
 Ber_CI = as.data.frame(Ber_CI)
-temp = c(x_bar$X2 - qt(c(0.95), df=2*p-1)  * sqrt(S[2,2]/n), 
-         x_bar$X2 + qt(c(0.95), df=2*p-1)  * sqrt(S[2,2]/n))
+temp = c(x_bar$X2 - abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[2,2]/n), 
+         x_bar$X2 + abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[2,2]/n))
 
 Ber_CI = rbind(Ber_CI, temp)
 rownames(Ber_CI) = c("Mu_1_tail", "Mu_2_wing")
@@ -172,21 +200,25 @@ Ber_CI
 
 ```
 
-## Q-Q plots and scatter plots
-```{r}
+T^2 simultaneous CI is slightly wider than Bonferroni Intervals. Bonferroni method provides shorter intervals when m = p. Because they are easy to apply and provide the relatively short confi- dence intervals needed for inference. 
 
+source: Applied multivariate Statistical Analysis - Pearson edition 2014
+
+## Q-Q plots and scatter plots
+```{r }
+library(CARS)
+
+qqPlot(birddata$V1, main ="QQ plot for X1: Tail length",id=F  )
+qqPlot(birddata$V2, main="QQ plot for X2: Wing Length",id=F )
 Scat = ggplot()+
   geom_point(aes(x=birddata$V1,y=birddata$V2))+
   ggtitle(label = "Scatter plot X1 vs X2")
 
-
-qqnorm(birddata$V1,main="QQ plot for X1")
-qqline(birddata$V1)
-qqnorm(birddata$V2,main="QQ plot for X2")
-qqline(birddata$V2)
 plot(Scat)
 
 ```
+
+
 
 # Question 3: Comparison of mean vectors (one–way MANOVA)
 
@@ -212,6 +244,14 @@ summary.aov(mann)
 
 ggpairs(Skulls)
 pairs(Skulls)
+```
+
+```{r}
+
+# Simultaneous Confidence Intervals for Manova 
+
+#Groups or g = unique(Skulls$epoch)
+
 ```
 
 
