@@ -118,7 +118,7 @@ head(bird_data)
 ## a) Find and sketch the 95% confidence ellipse for the population means $\mu_1$ and $\mu_2$. Suppose it is known that $\mu_1 = 190$ mm and $\mu_2 = 275$ mm for male hook-billed kites. Are these plausible values for the mean tail length and mean wing length for the female birds? Explain.
 
 ```{r}
-alpha <- 0.95
+alpha <- 0.05
 
 # Given mu_0 values (Center of ellipse)
 mu_1 <- 190
@@ -141,6 +141,9 @@ c <- sqrt(chi_sq)   # Expression (4-8)
 # Half lengths
 major_len <- sqrt(eigen_values[1]) * c    # length of major axes
 minor_len <- sqrt(eigen_values[2]) * c    # length of minor axes
+
+# plot(mu_0[1], mu_0[2], type="n", main="test draw.ellipse")
+# draw.ellipse(x=eigen_vectors,a=minor_len, b=major_len,angle=c(45,0))
 
 ```
 
@@ -188,8 +191,9 @@ cat(paste("95% Bonferroni intervals for mu_2 : ", "[", bon_interval2[1], ", ",
 ```{r}
 
 ggplot(bird_data) + 
-  geom_point(aes(x = Tail_length, y = Wing_length))
-  ggtitle("Scatterplot of birds wing and tail size") 
+  geom_point(aes(x = Tail_length, y = Wing_length)) +
+  ggtitle("Scatterplot of birds wing and tail size") +
+  theme_light()
 
 qqPlot(bird_data$Tail_length, main = "Q-Q Plot Tail Length") 
 qqPlot(bird_data$Wing_length, main = "Q-Q Plot Wing Length")
