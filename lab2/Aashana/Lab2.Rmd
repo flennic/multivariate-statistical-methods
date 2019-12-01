@@ -15,6 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(gridExtra)
 library(heplots)
+library(car)
+library(GGally)
 ```
 
 \newpage
@@ -108,12 +110,12 @@ Tsq = n * (meanMu) %*% solve(S) %*% t(meanMu)
 
 F_val =  qf(0.95,df1=p, df=n-p) * (p*(n-1)/(n-p)) #5% significance level
 
-Tsq<F_val
+cat("Is T^2 less than F_val? =",Tsq<F_val)
 
 # We conclude that it is in the region as  Tsq is less than F_val
 
 axes_len = function(lam,n,p){
-  sqrt(lam)* sqrt(p*(n-1)/ (n*(n-p)) * qf(0.95,df1=p, df=n-p))
+  sqrt(lam)* sqrt((p*(n-1))/ (n*(n-p)) * qf(0.95,df1=p, df=n-p))
 }
 
 l1=axes_len(lam=eigenValVec$values[1],n=n,p=p)
@@ -179,7 +181,9 @@ Scat = ggplot()+
 
 
 qqnorm(birddata$V1,main="QQ plot for X1")
+qqline(birddata$V1)
 qqnorm(birddata$V2,main="QQ plot for X2")
+qqline(birddata$V2)
 plot(Scat)
 
 ```
@@ -191,15 +195,23 @@ We will look at a data set on Egyptian skull measurements (published in 1905 and
 
 ## Explore the data first and present plots that you find informative.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 data("Skulls")
 
-# mann = manova(cbind(Skulls$mb,Skulls$bh,Skulls$bl, Skulls$nh)~Skulls$epoch, data = Skulls, alpha=0.05,CI=TRUE)
-# Manova(data=(Skulls[,2:5]), group=Skulls$epoch,method = "Wilks", alpha=0.05,CI=TRUE)
-# mann
-# mann$residuals
-# summary(mann)
+
 # summary(mann, test = "Wilks")
+# mann
+# Manova(data=(Skulls[,2:5]), group=Skulls$epoch,method = "Wilks", alpha=0.05,CI=TRUE)
+#one-way manova
+# summary(Anova(lm(cbind(mb, bh, bl, nh) ~ epoch, data=Skulls)))
+# mann$residuals
+
+
+mann = manova(cbind(mb,bh,bl, nh)~epoch, data = Skulls)
+summary.aov(mann)
+
+ggpairs(Skulls)
+pairs(Skulls)
 ```
 
 
