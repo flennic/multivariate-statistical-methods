@@ -1,0 +1,94 @@
+---
+title: "Multivariate Statistical Methods - Lab 03"
+author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    df_print: paged
+    number_sections: no
+    toc: yes
+    toc_float: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1: Principal components, including interpretation of them
+
+Solve Exercise $8.18$ of *Johnson, Wichern*. The data on the national track records for women, which you have studied earlier, can be found in the file `T1-9.dat`
+
+a) Obtain the sample correlation matrix $\mathbf{R}$ for these data, and determine its eigenvalues and eigenvectors.
+
+```{r}
+data = read.table("T1-9.dat")
+features = c("Country", "100", "200", "400", "800", "1500", "3000m", "Marathon")
+colnames(data) = features
+
+# Getting the sample correlation matrix and 
+# eigenvalues and egenvectors.
+X = data[, 2:8]
+X_corr = cor(X)
+X_eigen = eigen(X_corr)
+
+
+print("Sample Correlation Matrix")
+print(X_corr)
+print("Eigenvalues")
+print(X_eigen$values)
+print("Eigenvectors")
+print(X_eigen$vectors)
+```
+
+
+b) Determine the first two principal components for the standardized variables. Prepare a table showing the correlations of the standardized variables with the components, and the cumulative percentage of the total (standardized) sample variance explained by the two components.
+
+```{r}
+Z = scale(X)
+Z_corr = cor(Z)
+Z_eigen = eigen(Z_corr)
+
+print("First principal component of the standardized variables.")
+print(Z_eigen$vectors[, 1])
+print("Second principal component of the standardized variables.")
+print(Z_eigen$vectors[, 2])
+
+print("Correlation of the standardized variables")
+print(Z_corr)
+
+print("Cumulative percentage of the total variance explained by the first two components")
+print(sum(Z_eigen$values[1:2]) / 7)
+print("(91.9474%)")
+```
+
+c) Interpret the two principal components obtained in Part b. (Note that the first component is essentially a normalized unit vector and might measure the athletic excellence of a given nation. The second component might measure the relative strength of a nation at the various runnning distances.)
+
+Most of the values of the first components are pretty close. In some sense, this component measures the average time on each of the tracks. So its an equally weighted performance measure.
+
+The second component seems to be a measure of strenght regarding the distance of the runs. If the new component $Y$ is positive, it means that nation better at shorter distances while if it's negative, it means that it performs better at longer distances.
+
+
+d) Rank the nations based on their score on the first principal component. Does this ranking correspond with your intuitive notion of athletic excellence for the various countries?
+
+```{r}
+Y_1 = as.matrix(Z) %*% Z_eigen$vectors[, 1]
+rank = list(Country=data$Country, Score=Y_1)
+rank = data.frame(rank)
+ordered_idxs = order(rank$Score, decreasing=TRUE)
+ordered_rank = rank[ordered_idxs, ]
+
+print("Top 10 countries")
+print(ordered_rank[1:10,])
+print("Bottom 10 countries")
+print(ordered_rank[44:54,])
+```
+
+
+This ranking makes sense since the countries on top are mostly developed nations who always perform well on sports while the ones at the bototm are underdeveloped nations that always lack performance on competitive sports.
