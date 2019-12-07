@@ -18,6 +18,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+library(psych)
+library(ggplot2)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -90,5 +92,167 @@ print("Bottom 10 countries")
 print(ordered_rank[44:54,])
 ```
 
-
 This ranking makes sense since the countries on top are mostly developed nations who always perform well on sports while the ones at the bototm are underdeveloped nations that always lack performance on competitive sports.
+
+# Question 2: Factor Analysis
+
+**Task:** Perform a factor analysis of the national track records for women given in Table 1.9. Use the sample covariance matrix S and interpret the factors. Compute factor scores, and check for outliers in the data. Repeat the analysis with the sample correlation matrix R. Does it make a difference if R, rather than S, is factored? Explain.
+
+```{r}
+
+# ML Estimation
+model_fact_S = factanal(data[,2:8], factors = 2, covmat = cov(X))
+# PC
+model_prin_S = principal(cov(data[,2:8]), nfactors = 2, covar = TRUE)
+
+# ML Estimation
+model_fact_R = factanal(data[,2:8], factors = 2, covmat = cor(X))
+# PC
+model_prin_R = principal(cor(data[,2:8]), nfactors = 2, covar = FALSE, scores = TRUE)
+
+```
+
+**Question:** What does it mean that the parameter rotation of factanal() is set to "varimax" by default
+
+**Answer:** *In statistics, a varimax rotation is used to simplify the expression of a particular sub-space in terms of just a few major items each.* (from Wikipedia). It means that the rotation tries to fit as much variance as possible into as little components / features at possible. This has the benefit that first the new components might preserve some explainability and the found basis can actually used for dimensionality reduction as just a few features explain most the the variance. It is the default as this behaviour is what most people seek.
+
+## ML and S
+
+### Interpret the Factors
+
+We can see that both components are explain approximately the same amount of variance. Looking at the values we see that factor1 puts more emphasis on longer distances (800m and more), while factor2 focuses mainly on shorter distances (400m and less). The model seems to be okay as both components explain around 89 percent of the variance.
+
+```{r}
+
+model_fact_S
+model_fact_S$loadings
+
+```
+
+### Compute the Factor Scores
+
+```{r}
+
+model_fact_S_scores = factanal(data[,2:8], factors = 2, scores="Bartlett")$scores
+
+```
+
+### Check for Outliers
+
+We can see that the outliers are "SAM", "KORN" and "COK".
+
+```{r, echo=FALSE}
+
+ggplot() +
+    geom_text(aes(x = model_fact_S_scores[,1], y = model_fact_S_scores[,2], label = data$Country)) +
+    labs(title = "Factor Scores (ML with Covariance)",
+          y = "Component 2", x = "Component 1", color = "Legend") +
+    theme_minimal()
+
+```
+
+## PC and S
+
+### Interpret the Factors
+
+This time it seems that both factors focus quite a lot on the 400m track and the marathon. Component 2 puts a but more emphasis on the shorter tracks. So it seems like these components provide less interpretability. Looking at the difference we see that both components together explain less than 50 percent of the variance, which means that we lose quite a lot of the original variance. This also explains why it is quite hard to explain the components in terms of the given data - some part are missing.
+
+```{r}
+
+model_prin_S
+model_prin_S$loadings
+
+```
+
+### Compute the Factor Scores
+
+```{r}
+
+model_prin_S_scores = factor.scores(data[,2:8], f=model_prin_S)$scores
+
+```
+
+### Check for Outliers
+
+The outliers this time are "MEX", "COK" and "PNG".
+
+```{r, echo=FALSE}
+
+ggplot() +
+    geom_text(aes(x = model_prin_S_scores[,1], y = model_prin_S_scores[,2], label = data$Country)) +
+    labs(title = "Factor Scores (PC with Covariance",
+          y = "Component 2", x = "Component 1", color = "Legend") +
+    theme_minimal()
+
+```
+
+
+## ML and R
+
+### Interpretation of the Factors
+
+Comparing with using the covariance matrix, we get the same explanation for the variables. Component 1 is still responsible for the longer tracks while component 2 is responsible for the shorter tracks. Both explain almost 90 percent of the variance which is quite good. Actually it seems that there is no difference at all. It seems there is n difference between using the covariance or correlation using the ML method.
+
+```{r}
+
+model_fact_R
+model_fact_R$loadings
+
+```
+
+### Compute the Factor Scores
+
+```{r}
+
+model_fact_R_scores = factanal(data[,2:8], factors = 2, scores="Bartlett")$scores
+
+```
+
+### Check for Outliers
+
+We can see that the outliers are "SAM", "KORN" and "COK".
+
+```{r, echo=FALSE}
+
+ggplot() +
+    geom_text(aes(x = model_fact_R_scores[,1], y = model_fact_R_scores[,2], label = data$Country)) +
+    labs(title = "Factor Scores (ML with Correlation)",
+          y = "Component 2", x = "Component 1", color = "Legend") +
+    theme_minimal()
+
+```
+
+## PC and R
+
+### Interpret the Factors
+
+```{r}
+
+model_prin_R
+model_prin_R$loadings
+
+```
+
+We see that this time the values changed and it looks the we almost found the same components compared to the ML method in both cases (using S and R). Component 1 is again explaining the variance for the longer tracks and components to the variance for the shorter tracks. We see a slight improvement for the cumulative variance, as we actually explain more than 90 percent of the variance, which is quite good for just two components. So "just" these two explain almost all of the variance and both are good for interpretation.
+
+### Compute the Factor Scores
+
+```{r}
+
+model_prin_R_scores = factor.scores(data[,2:8], f=model_prin_R)$scores
+
+```
+
+The outliers this time are "MEX", "COK" and "PNG", which are the same we observed with the above mentioned methods, which makes sense as we found almost the same components.
+
+### Check for Outliers
+
+```{r, echo=FALSE}
+
+ggplot() +
+    geom_text(aes(x = model_prin_S_scores[,1], y = model_prin_S_scores[,2], label = data$Country)) +
+    labs(title = "Factor Scores (PC with Covariance",
+          y = "Component 2", x = "Component 1", color = "Legend") +
+    theme_minimal()
+
+```
