@@ -1,0 +1,109 @@
+---
+title: "Multivariate Statistical Methods - Lab 03"
+author: "Lakshidaa Saigiridharan (laksa656)"
+date: "12/8/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Loading required packages
+library(knitr)
+library(kableExtra)
+
+```
+
+# Question 1: Principal components, including interpretation of them
+
+## Solve Exercise 8.18 of Johnson, Wichern. The data on the national track records for women, which you have studied earlier, can be found in the file T1-9.dat.
+
+```{r}
+# Loading the required data
+track_data <- read.table("T1-9.dat")
+colnames(track_data) <- c("Country", "100", "200", "400", "800",
+                          "1500", "3000", "Marathon")
+head(track_data)
+```
+
+## (a) Obtain the sample correlation matrix R for these data, and determine its eigenvalues and eigenvectors.
+
+```{r}
+# Obtaining sample correlation matrix R
+R <- cor(track_data[,2:8])
+
+cat("Sample Correlation Matrix R : \n")
+R
+
+# Obtaining eigenvalues and eigenvectors of R
+eigen_values <- eigen(R)$values
+eigen_vectors <- eigen(R)$vectors
+
+cat("\nEigen values of R : \n")
+eigen_values
+
+cat("\nEigen vectors of R : \n")
+eigen_vectors
+```
+
+## (b) Determine the first two principal components for the standardized variables. Prepare a table showing the correlations of the standardized variables with the compo- nents, and the cumulative percentage of the total (standardized) sample variance explained by the two components.
+
+```{r}
+# Standardizing the data
+track <- track_data[,2:8]
+track_data_sd <- sapply(track, sd) 
+track_data_mean <- colMeans(track) 
+stand_track_data <- matrix(nrow=54, ncol=7) #standardized variables
+
+for(i in 1:7){
+  stand_track_data[,i] <- (track[,i] - track_data_mean[i])/track_data_sd[i]
+}
+
+colnames(stand_track_data)<-colnames(track)
+
+# Sample correlation matrix of standardized data
+R_stand <- cor(stand_track_data)
+R_stand_eigen <- eigen(R_stand)
+
+# Principal components
+PC1 <- t(R_stand_eigen$vectors[,1] %*% t(stand_track_data))
+PC2 <- t(R_stand_eigen$vectors[,2] %*% t(stand_track_data)) 
+
+pc_table <- data.frame("PrincipalComponent1"=PC1, 
+                       "PrincipalComponent2"=PC2)
+
+# Proportion of total variance for ith PC
+proportion_var12 <- (sum(R_stand_eigen$values[1:2]) / 7)*100
+
+# Table showing the correlations of the standardized variables
+kable(R_stand) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  add_header_above(c(" ", "Correlation of Standardized Variable" = 7))
+
+# Table showing first two principal components of the standardized variables
+kable(pc_table) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", position = "left"))
+
+cat(paste("Cumulative percentage of the total(standardized) 
+          sample variance explained by the two components = ", 
+          proportion_var12, "%"))
+
+```
+
+## (c) Interpret the two principal components obtained in Part b. (Note that the first component is essentially a normalized unit vector and might measure the athlet- ic excellence of a given nation. The second component might measure the relative strength of a nation at the various running distances.)
+
+From the results obtained in Part (b), it can be seen that all events contribute equally to the first component which measures the track index of the data. The second component exhibits a clear difference between the shorter distance track events (i.e., 100m, 200m, 400m) and the longer distance track events (i.e., 800m, 1500m, 3000m, Marathon). 
+
+## (d) Rank the nations based on their score on the first principal component. Does this ranking correspond with your inituitive notion of athletic excellence for the various countries?
+
+```{r}
+
+rank <- order(PC1, decreasing = TRUE)
+ranked_countries <- track_data$Country[rank]
+ranked_countries
+
+```
+
+
