@@ -115,7 +115,7 @@ ggplot() +
 
 We define $\alpha = 0.001$ and we check for each observation if it lies within the $1 - \alpha$ percentile of the $\chi^2(\nu)$-distribution with `r nu` degrees of freedom. Finally we check which countries are the outliers. Our findings match the results from the previous lab.
 
-**TODO:** multiple–testing correction, explain the significance level
+Below is the test without any multiple test correction. In this case the countries KORN, PNG and SAM are regarded as outliers.
 
 ```{r}
 
@@ -127,13 +127,185 @@ track_times$country[outlier_indeces]
 
 ```
 
+Below is the test results with the correction for multiple tests. In this case the only country that is an outlier is SAM.
+
+```{r}
+
+alpha = 0.001 / nrow(track_times)
+
+outlier_indeces = 1 - pchisq(D, nu) < alpha
+
+track_times$country[outlier_indeces]
+
+```
+
+Multiple test correction should be used because we are doing multiple test at the same time, so the original significance level $\alpha$ should be adjusted to reflect that we are comparing multiple countries.
+
+In this case the significance level $\alpha = 0.1\%$ it depends on what is to be considered an outlier. In this case it seems reasonable since we want countries were its distance is way off from the other ones. So 0.01% seems reasonable. But this also depends on the application.
+
+
 ## Different Outlier Reasoning
 
 One outlier is North Korea. This country is not an outlier with the Euclidean distance. Try to explain these seemingly contradictory result.
 
+The contradictory results arise from the fact that the euclidean distance doesn't normalize the data give the variations on the observations (variance and covariance) while the Mahalanobis distance does consider these variations. This is why we are getting contradictory results.
+
+
 # Test, Confidence Region and Confidence Intervals for a Mean Vector
 
 Look at the bird data in file `T5-12.dat` and solve Exercise 5.20 of *Johnson, Wichern*. Do not use any extra R package or built–in test but code all required matrix calculations. You MAY NOT use loops!
+
+## Confidence Ellipse
+```{r}
+library(ellipse)
+birddata = read.table("T5-12.DAT")
+# Male hook-billed kites
+n = nrow(birddata) 
+p = dim(birddata)[2]
+mu = data.frame("mu1" = 190, "mu2" = 275)
+meanVec =NULL
+x_bar = NULL
+meanMu = NULL
+# x - x_bar
+x_bar = data.frame("X1" = mean(birddata$V1), "X2" = mean(birddata$V2))
+
+sample_var = function(obs){
+  X = as.matrix(obs)
+  IdentityMat = diag(nrow(obs))
+  one_n = matrix(1,nrow(X),nrow(X)) 
+  # sample var formula from notes
+  mix = (IdentityMat - (1/nrow(X)) *(one_n))
+  
+  sample_variance = (1/nrow(X)) * (t(X) %*% mix %*% X)
+  return(sample_variance)
+}
+
+S = sample_var(birddata)
+S =  matrix(S, ncol=2, nrow=2)
+eigenValVec = eigen(S)
+meanMu = as.matrix(x_bar - mu)
+
+# To check if mu is on the confidence region we need to check if t^2 is < F_{n,n-p}
+
+Tsq = n * (meanMu) %*% solve(S) %*% t(meanMu)
+
+F_val =  qf(0.95,df1=p, df=n-p) * (p*(n-1)/(n-p)) #5% significance level
+
+cat("Is T^2 less than F_val? =",Tsq<F_val)
+cat("\nThus, we do not reject the NULL Hypothesis(H_0)")
+# We conclude that it is in the region as  Tsq is less than F_val
+
+axes_len = function(lam,n,p){
+  sqrt(lam)* sqrt((p*(n-1))/ (n*(n-p)) * qf(0.95,df1=p, df2=(n-p)))
+}
+
+l1=axes_len(lam=eigenValVec$values[1],n=n,p=p)
+l2=axes_len(lam=eigenValVec$values[2],n=n,p=p)
+
+# plot(birddata)
+# lines(ellipse(mu, S, npoints = 200))
+# dataEllipse(birddata,levels=.95)
+# length(c(mu$mu1,mu$mu2))
+
+
+```
+
+Are these plaussible values for the mean tail length and wing length for the female birds?
+**Answer** It is quite plaussible as female hook-billed vary a lot in size just like the male hook-billed. Sometimes the juveniles are bigger than the size than they are supposed to be. And thus the mean size of tail length and wing length could be same for the female hook-billed kites.
+
+
+```{r}
+
+rotate = function(a,b,c){
+  res = list()
+  
+  if (b==0 & a >= c){res$angle = 0} 
+  else if (b==0 & a<c) { res$angle = (pi/2)}
+  else{ res$angle = atan2(eigenValVec$values[1]-a, b)}
+
+  res$lam1 = (a+c)/2 + sqrt(((a-c)/2)^2 + b^2)
+  res$lam2 = (a+c)/2 - sqrt(((a-c)/2)^2 + b^2)
+  
+  return(res)
+}
+# S = matrix(c(4,-2,-2,4),byrow = T, nrow = 2)
+res = rotate(S[1,1],S[1,2],S[2,2])
+
+chi95<-qchisq(.95,df=2)
+axes95 <- sqrt(eigenValVec$values) * sqrt(chi95)
+
+
+library(ggforce)
+ggplot()+
+  geom_point(aes(birddata$V1, birddata$V2))+
+  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=axes95[1], b=axes95[2], angle = res$angle ))
+```
+
+## Simultaneous T2-intervals
+
+```{r}
+
+# Simultaneous T2-intervals for the component means as shadows of the confidence ellipse on the axes
+
+fsqrt = function(i){
+  return(sqrt(p*(n-1)/ ((n-p)) * qf(0.95,df1=p, df=n-p)) * sqrt(S[i,i]/n))
+}
+
+CI = NULL
+CI$Lower = (x_bar$X1) - fsqrt(1)
+CI$Upper =(x_bar$X1) + fsqrt(1)
+CI = as.data.frame(CI)
+temp = c ((x_bar$X2) - fsqrt(2), (x_bar$X2) + fsqrt(2))
+CI = rbind(CI, temp)
+rownames(CI) = c("Mu_1_tail","Mu_2_wing")
+# kableExtra::kable(CI)
+CI
+```
+
+
+
+
+```{r}
+# Bonferroni's Confidence intervals
+set.seed(12345)
+ben_alpha = 0.95
+Ber_CI = NULL
+Ber_CI$Lower = x_bar$X1 - abs(qt(0.05/2*p, df=n-1))  * sqrt(S[1,1]/n)
+Ber_CI$Upper= x_bar$X1 + abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[1,1]/n)
+Ber_CI = as.data.frame(Ber_CI)
+temp = c(x_bar$X2 - abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[2,2]/n), 
+         x_bar$X2 + abs(qt(0.05/2*p, df=n-1) ) * sqrt(S[2,2]/n))
+
+Ber_CI = rbind(Ber_CI, temp)
+rownames(Ber_CI) = c("Mu_1_tail", "Mu_2_wing")
+Ber_CI
+
+```
+
+T^2 simultaneous CI is slightly wider than Bonferroni Intervals. Bonferroni method provides shorter intervals when m = p. Because they are easy to apply and provide the relatively short confi- dence intervals needed for inference. 
+
+source: Applied multivariate Statistical Analysis - Pearson edition 2014
+
+## Q-Q plots and scatter plots
+
+The data doesn't look normal from the QQ-plots.
+
+```{r }
+library(CARS)
+
+qqPlot(birddata$V1, main ="QQ plot for X1: Tail length",id=F  )
+qqPlot(birddata$V2, main="QQ plot for X2: Wing Length",id=F )
+Scat = ggplot()+
+  geom_point(aes(x=birddata$V1,y=birddata$V2))+
+  ggtitle(label = "Scatter plot X1 vs X2")
+
+plot(Scat)
+
+```
+
+
+
+
 
 # Comparison of Mean Vectors (one–way MANOVA)
 

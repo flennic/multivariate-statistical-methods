@@ -1,0 +1,35 @@
+---
+title: "Multivariate Statistical Methods (732A97) - Lab 01"
+author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
+output: 
+  pdf_document:
+    toc: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1: Test of outliers
+
+Consider again the data set from the `T1-9.dat` file, National track records for women. In the first assignment we studied different distance measures between an observation and the sample average vector. The most common multivariate residual is the Mahalanobis distance and we computed this distance for all observations.
+
+a) The Mahalanobis distance is approximately chi-square distributed, if the data comes from a multivariate normal distribution and the number of observations is large. Use this chi-square approximation for testing each observation at the $0.1\%$ significance level and conclude which countries can be regarded as outliers. Shoud you use a multiple-testing correction procedure? Compare the results with and without one. Why is (or maybe is not) $0.1\%$ a sensible significance level for this task?
+
+
+# Question 3: Comparison of mean vectors (one-way MANOVA)
+
+We will look at a data set on Egyptian skull measurements (published in 1905 and now in `heplots R` package as the object `Skulls`). Here observations are made from five epochs and on each object the maximum breadth (mb), basibregmatic height (bh), basialiveolar length (bl) and nasal height (nh) were measured.
+
+a. Explore the data first and present plots that you find informative.
+
+```{r}
+
+```
+
+b. Now we are interested whether there are differences between the epochs. Do the mean vectors differ? Study this question and justify your conclusions.
+
+c. If the means differ between epochs compute and report simultaneous confidence intervals. Inspect the residuals whether they have mean 0 and if they deviate from normality (graphically).
+
+**TIP:** It might be helpful for you to read Exercise 6.24 of *Johnson, Wichern*. The function `manova()` can be useful for this question and the residuals can be found in the `$res` field.
