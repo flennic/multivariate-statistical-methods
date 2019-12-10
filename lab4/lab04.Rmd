@@ -3,18 +3,18 @@ title: "Multivariate Statistical Methods - Lab 04"
 author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
   html_document:
     df_print: paged
     number_sections: no
     toc: yes
     toc_float: no
-  word_document:
-    toc: yes
-    toc_depth: '3'
-  pdf_document:
-    number_sections: yes
-    toc: yes
-    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
@@ -132,17 +132,38 @@ significant_k(data)
 
 ```{r}
 
-get_AB_variance = function(M, p=2, q=2) {
-  R11 = as.matrix(M[1:p,1:p])
-  #R12 = as.matrix(M[1:p,(p+1):(p+q)])
-  #R21 = as.matrix(M[(p+1):(p+q), 1:p])
-  R22 = as.matrix(M[(p+1):(p+q),(p+1):(p+q)])
-  #F_vectors = eigen(solve(sqrtm(R22)) %*% R21 %*% solve(R11) %*% R12 %*% solve(sqrtm(R22)))$vectors
-  #E_vectors = eigen(solve(sqrtm(R11)) %*% R12 %*% solve(R22) %*% R21 %*% solve(sqrtm(R11)))$vectors
+get_AB_variance = function(M, p=2, q=2, k=1) {
   
-  #U_k = t(E_vectors) %*% solve(sqrtm(R11))
-  return(list(set_A_variance = sum(diag(R11))/p, set_B_variance = sum(diag(R22))/q))
+  R11 = as.matrix(M[1:p,1:p])
+  R12 = as.matrix(M[1:p,(p+1):(p+q)])
+  R21 = as.matrix(M[(p+1):(p+q), 1:p])
+  R22 = as.matrix(M[(p+1):(p+q),(p+1):(p+q)])
+  F_vectors = eigen(solve(sqrtm(R22)) %*% R21 %*% solve(R11) %*% R12 %*% solve(sqrtm(R22)))$vectors
+  E_vectors = eigen(solve(sqrtm(R11)) %*% R12 %*% solve(R22) %*% R21 %*% solve(sqrtm(R11)))$vectors
+  
+  U_k = t(E_vectors) %*% solve(sqrtm(R11))
+  V_k = t(F_vectors) %*% solve(sqrtm(R22))
+  
+  # Until here it seems fine...
+  # And then it fucks up
+  
+  #sum(U_k**2)/p
+  
+  A_inv = solve(U_k)
+  B_inv = solve(V_k)
+  
+  prop_var_A = sum(A_inv[,k]**2)/p
+  prop_var_B = sum(B_inv[,k]**2)/q
+  
+  return(c(prop_var_A, prop_var_B))
 }
+
+```
+
+
+```{r}
+
+get_AB_variance(data, p=3, q=2)
 
 ```
 
