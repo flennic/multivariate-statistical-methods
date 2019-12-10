@@ -214,15 +214,10 @@ euclidean = function(obs){
   sample_mean = (one %*% (obs))/nrow(obs)
   Xbar = obs - sample_mean
   bl = Xbar %*% t(Xbar)
-
-  vec = sqrt(diag(Xbar %*% t(Xbar)))
   
+  vec = sqrt(diag(Xbar %*% t(Xbar)))
   return(vec)
- 
 }
-
-
-
 ```
 
 ```{r}
@@ -245,13 +240,13 @@ order_me(euc_Vec)
 
 ```{r}
 unnormal = function(obs){
-  
+  X = as.matrix(obs)
   IdentityMat = diag(nrow(obs))
   one_n = matrix(1,nrow(X),nrow(X)) 
   
   # sample var formula from notes
   mix = (IdentityMat - (1/nrow(obs))*(one_n))
-  X = as.matrix(obs)
+  
   sample_variance = (t(X) %*% mix %*% X)/nrow(X)
 
   # V from eq
@@ -283,8 +278,7 @@ normalized = function(obs){
   
   # sample var formula from notes
   mix = (IdentityMat - (1/nrow(obs))*(one_n))
-  X = as.matrix(obs)
-  sample_variance = (t(X) %*% mix %*% X)/nrow(X)
+  sample_variance = (1/nrow(X)) * (t(X) %*% mix %*% X)
   
   SD = sqrt(diag(sample_variance))
   
