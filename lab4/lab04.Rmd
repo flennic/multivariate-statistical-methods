@@ -3,28 +3,31 @@ title: "Multivariate Statistical Methods - Lab 04"
 author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
-    toc_depth: 3
-  word_document:
-    toc: yes
-    toc_depth: '3'
   html_document:
     df_print: paged
     number_sections: no
     toc: yes
     toc_float: no
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
 library(ggplot2)
+#library(yacca)
+#library(CCA)
+library(expm)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Canonical correlation analysis by utilizing suit- able software
 
-Look at the data described in Exercise $10.16$ of *Johnson, Wichern*. You may find it in the file `P10-16.DAT`. The data for 46 patients are summarized in a covariance matrix, which will be analyzed in R. Read through the description of the different R packages and functions so you may chose the must suitable one for the analysis. Supplement with own code where necessary.
+Look at the data described in Exercise $10.16$ of *Johnson, Wichern*. You may find it in the file `P10-16.DAT`. The data for 46 patients are summarized in a covariance matrix, which will be analyzed in R. Read through the description of the different R packages and functions so you may chose the most suitable one for the analysis. Supplement with own code where necessary.
 
 ```{r}
 
@@ -40,9 +43,26 @@ head(data)
 
 ```{r}
 
+myFun = function(Sigma, p=3, q=2, n=46, alpha=0.05) {
+  S11 = as.matrix(Sigma[1:p,1:p])
+  S22 = as.matrix(Sigma[(p+1):(p+q),(p+1):(p+q)])
+  S = as.matrix(Sigma)
+  
+  test_statistics = n * log((det(S11) * det(S22) / det(S)))
+  critical_value = qchisq(1 - alpha, df=p*q)
+  
+  return(test_statistics > critical_value)
+}
 
 ```
 
+```{r}
+
+myFun(data)
+
+```
+
+So we reject $H_0$ which means that we reject: $H_0: \Sigma_{12}= 0$.
 
 ## Number of Cononical Significant Variables
 
@@ -50,17 +70,49 @@ head(data)
 
 ```{r}
 
+give_me_Rho_sq_Plx = function(M, p=2, q=2) {
+  R11 = as.matrix(M[1:p,1:p])
+  R12 = as.matrix(M[1:p,(p+1):(p+q)])
+  R21 = as.matrix(M[(p+1):(p+q), 1:p])
+  R22 = as.matrix(M[(p+1):(p+q),(p+1):(p+q)])
+  res = eigen(solve(sqrtm(R11)) %*% R12 %*% solve(R22) %*% R21 %*% solve(sqrtm(R11)))
+  return(res$values)
+}
+
+significant_k = function(Sigma, alpha=0.05, n=46, p=3, q=2) {
+  
+  k_max = p
+  Rho_sq = give_me_Rho_sq_Plx(Sigma, p=p, q=q)
+  
+  for (k in 1:k_max) {
+    
+    test_statistics = - (n - 1 - 0.5 * (p + q + 1)) * log(prod(1 - Rho_sq[(k+1):p]))
+    critical_value = qchisq(1 - alpha, df=(p-k)*(q-k))
+    
+    if (test_statistics >= critical_value)
+      return(k)
+  }
+  return(k_max)
+}
+
+```
+
+The amount of significant canonical variates is: 
+
+```{r}
+
+significant_k(data)
+
 ```
 
 
 ## Interpretation of the Significant Squared Canonical Correlations
 
-**Task:** Interpret the “significant” squared canonical correlations.
-**Tip:** Read section “Canonical Correlations as Generalizations of Other Correlation Coeffi- cients”.
+**Task:** Interpret the "significant" squared canonical correlations.
 
-```{r}
+**Tip:** Read section "Canonical Correlations as Generalizations of Other Correlation Coefficients".
 
-```
+**Answer:** Because of its multiple correlation coefficient interpretation, the *k*th *squared* canonical correlation $\rho_k^{*2}$ is the proportion of the variance of canonical variate $U_k$ "explained" by the set $\mathbf{X^{(2)}}$. It is also the proportion of the variance of canonical variate $V_k$ "explained" by the set $\mathbf{X^{(1)}}$. Therefore, $\rho_k^{*2}$ is often called the *shared variance* between the two sets $\mathbf{X^{(1)}}$ and $\mathbf{X^{(2)}}$ The largest value, $\rho_1^{*2}$, is sometimes regarded as a measure of set "overlap". (quoted from book)
 
 
 ## Interpretation of Canonial Variates
@@ -74,10 +126,23 @@ head(data)
 
 ## Suitability of the Canonical Variates as a Summary Measure
 
-**Task:** Are the “significant” canonical variates good summary measures of the respective data sets?
-**Tip:** Read section “Proportions of Explained Sample Variance”.
+**Task:** Are the "significant" canonical variates good summary measures of the respective data sets?
+
+**Tip:** Read section "Proportions of Explained Sample Variance".
 
 ```{r}
+
+get_AB_variance = function(M, p=2, q=2) {
+  R11 = as.matrix(M[1:p,1:p])
+  #R12 = as.matrix(M[1:p,(p+1):(p+q)])
+  #R21 = as.matrix(M[(p+1):(p+q), 1:p])
+  R22 = as.matrix(M[(p+1):(p+q),(p+1):(p+q)])
+  #F_vectors = eigen(solve(sqrtm(R22)) %*% R21 %*% solve(R11) %*% R12 %*% solve(sqrtm(R22)))$vectors
+  #E_vectors = eigen(solve(sqrtm(R11)) %*% R12 %*% solve(R22) %*% R21 %*% solve(sqrtm(R11)))$vectors
+  
+  #U_k = t(E_vectors) %*% solve(sqrtm(R11))
+  return(list(set_A_variance = sum(diag(R11))/p, set_B_variance = sum(diag(R22))/q))
+}
 
 ```
 
