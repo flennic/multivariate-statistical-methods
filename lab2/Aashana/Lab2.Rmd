@@ -156,7 +156,8 @@ axes95 <- sqrt(eigenValVec$values) * sqrt(chi95)
 library(ggforce)
 ggplot()+
   geom_point(aes(birddata$V1, birddata$V2))+
-  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=axes95[1], b=axes95[2], angle = res$angle ))
+  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=l1*2 , b=l2*2, angle = res$angle ))+
+  ylim(260,300)+xlim(180,200)
 ```
 
 
