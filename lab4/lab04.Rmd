@@ -1,0 +1,92 @@
+---
+title: "Multivariate Statistical Methods - Lab 04"
+author: "Maximilian Pfundstein (maxpf364), Hector Plata (hecpl268), Aashana Nijhawan(aasni448), Lakshidaa Saigiridharan (laksa656)"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    df_print: paged
+    number_sections: no
+    toc: yes
+    toc_float: no
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Canonical correlation analysis by utilizing suit- able software
+
+Look at the data described in Exercise $10.16$ of *Johnson, Wichern*. You may find it in the file `P10-16.DAT`. The data for 46 patients are summarized in a covariance matrix, which will be analyzed in R. Read through the description of the different R packages and functions so you may chose the must suitable one for the analysis. Supplement with own code where necessary.
+
+```{r}
+
+data = read.table("P10-16.DAT")
+head(data)
+
+```
+
+
+## Association Between Groups
+
+**Task:** Test at the 5 percent level if there is any association between the groups of variables.
+
+```{r}
+
+
+```
+
+
+## Number of Cononical Significant Variables
+
+**Task:** How many pairs of canonical variates are significant?
+
+```{r}
+
+```
+
+
+## Interpretation of the Significant Squared Canonical Correlations
+
+**Task:** Interpret the “significant” squared canonical correlations.
+**Tip:** Read section “Canonical Correlations as Generalizations of Other Correlation Coeffi- cients”.
+
+```{r}
+
+```
+
+
+## Interpretation of Canonial Variates
+
+**Task:** Interpret the canonical variates by using the coefficients and suitable correlations.
+
+```{r}
+
+```
+
+
+## Suitability of the Canonical Variates as a Summary Measure
+
+**Task:** Are the “significant” canonical variates good summary measures of the respective data sets?
+**Tip:** Read section “Proportions of Explained Sample Variance”.
+
+```{r}
+
+```
+
+
+## Opinion on the Success of the canonical analysis.
+
+**Task:** Give your opinion on the success of this canonical correlation analysis.
+
+```{r}
+
+```
+
