@@ -19,8 +19,8 @@ output:
 
 ```{r setup, include=FALSE}
 library(ggplot2)
-#library(yacca)
-#library(CCA)
+library(yacca)
+library(CCA)
 library(expm)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -81,7 +81,7 @@ give_me_Rho_sq_Plx = function(M, p=2, q=2) {
 
 significant_k = function(Sigma, alpha=0.05, n=46, p=3, q=2) {
   
-  k_max = p
+  k_max = min(p, q)
   Rho_sq = give_me_Rho_sq_Plx(Sigma, p=p, q=q)
   
   for (k in 1:k_max) {
@@ -112,16 +112,60 @@ significant_k(data)
 
 **Tip:** Read section "Canonical Correlations as Generalizations of Other Correlation Coefficients".
 
-**Answer:** Because of its multiple correlation coefficient interpretation, the *k*th *squared* canonical correlation $\rho_k^{*2}$ is the proportion of the variance of canonical variate $U_k$ "explained" by the set $\mathbf{X^{(2)}}$. It is also the proportion of the variance of canonical variate $V_k$ "explained" by the set $\mathbf{X^{(1)}}$. Therefore, $\rho_k^{*2}$ is often called the *shared variance* between the two sets $\mathbf{X^{(1)}}$ and $\mathbf{X^{(2)}}$ The largest value, $\rho_1^{*2}$, is sometimes regarded as a measure of set "overlap". (quoted from book)
+```{r}
+rhos = give_me_Rho_sq_Plx(data, 3, 2)
+print(rhos[1:2])
+```
+
+**Answer:** Because of its multiple correlation coefficient interpretation, the *k*th *squared* canonical correlation $\rho_k^{*2}$ is the proportion of the variance of canonical variate $U_k$ "explained" by the set $\mathbf{X^{(2)}}$. It is also the proportion of the variance of canonical variate $V_k$ "explained" by the set $\mathbf{X^{(1)}}$. Therefore, $\rho_k^{*2}$ is often called the *shared variance* between the two sets $\mathbf{X^{(1)}}$ and $\mathbf{X^{(2)}}$ The largest value, $\rho_1^{*2}$, is sometimes regarded as a measure of set "overlap". 
+
+This means that $26.7\%$ of the variance of the first canonical variate $U_1$ is explained by the set $X^{(2)}$. The same interpretation goes to the second squared canonical correlation, $1.5\%$ of the variance of the first canonical variate $U_1$ is explaine by the set $X^{(2)}$.
 
 
 ## Interpretation of Canonial Variates
 
 **Task:** Interpret the canonical variates by using the coefficients and suitable correlations.
 
-```{r}
+**Answer:** From the results below we see that the correlation between the first two canonical variables is about 0.5. This suggest, given a1 and b1 that being glucose intolerant and having a high insuline resistance with low insuline response to oral glucose is interconected with the weight.
 
+As for the second pair of canonical variables, it's correlation is about 0.12. Given this and a2 and b2, we can say that theres some relationship between high glucose intolerance with low insule response to oral glucose and insule resistance with low weight and high fsating plasma glucose.
+
+```{r}
+S11 = as.matrix(data[1:3,1:3])
+S12 = as.matrix(data[1:3,(4):(5)])
+S21 = as.matrix(data[(4):(5), 1:3])
+S22 = as.matrix(data[(4):(5),(4):(5)])
+res = eigen(solve(sqrtm(S11)) %*% S12 %*% solve(S22) %*% S21 %*% solve(sqrtm(S11)))
+
+a1 =  solve(sqrtm(S11)) %*% res$vectors[, 1]
+a2 =  solve(sqrtm(S11)) %*% res$vectors[, 2]
+
+b1_prop = solve(S22) %*% S21 %*% a1
+b2_prop = solve(S22) %*% S21 %*% a2
+
+b1 = b1_prop / sqrt(t(b1_prop) %*% S22 %*% b1_prop)[1, 1]
+b2 = b2_prop / sqrt(t(b2_prop) %*% S22 %*% b2_prop)[1, 1]
+
+print("a1")
+print(a1)
+
+print("a2")
+print(a2)
+
+print("b1")
+print(b1)
+
+print("b2")
+print(b2)
+
+print("Correlation between U1 and V1")
+print(sqrt(res$values[1]))
+
+print("Correlation between U2 and V2")
+print(sqrt(res$values[2]))
 ```
+
+
 
 
 ## Suitability of the Canonical Variates as a Summary Measure
@@ -130,49 +174,56 @@ significant_k(data)
 
 **Tip:** Read section "Proportions of Explained Sample Variance".
 
-```{r}
-
-get_AB_variance = function(M, p=2, q=2, k=1) {
-  
-  R11 = as.matrix(M[1:p,1:p])
-  R12 = as.matrix(M[1:p,(p+1):(p+q)])
-  R21 = as.matrix(M[(p+1):(p+q), 1:p])
-  R22 = as.matrix(M[(p+1):(p+q),(p+1):(p+q)])
-  F_vectors = eigen(solve(sqrtm(R22)) %*% R21 %*% solve(R11) %*% R12 %*% solve(sqrtm(R22)))$vectors
-  E_vectors = eigen(solve(sqrtm(R11)) %*% R12 %*% solve(R22) %*% R21 %*% solve(sqrtm(R11)))$vectors
-  
-  U_k = t(E_vectors) %*% solve(sqrtm(R11))
-  V_k = t(F_vectors) %*% solve(sqrtm(R22))
-  
-  # Until here it seems fine...
-  # And then it fucks up
-  
-  #sum(U_k**2)/p
-  
-  A_inv = solve(U_k)
-  B_inv = solve(V_k)
-  
-  prop_var_A = sum(A_inv[,k]**2)/p
-  prop_var_B = sum(B_inv[,k]**2)/q
-  
-  return(c(prop_var_A, prop_var_B))
-}
-
-```
-
+**Answer:** The second set of canonical variates are good summary measures of the second standardized dataset since all of its variance is explained by it, since the number of variable is the same as the number of significant canonical variates. As for the first set (U), the total variance of the original standardized variables Z(1) explained by it is almost $40\%$ so it can be said that to some degree is a decent summary.
 
 ```{r}
+# Calculating the correlation matrix.
+S = as.matrix(data)
+D = sqrt(diag(diag(S)))
+R = solve(D) %*% S %*% solve(D)
 
-get_AB_variance(data, p=3, q=2)
+# Getting the canonical coefficient vectors
+# of the standardized observations.
+S11 = as.matrix(R[1:3,1:3])
+S12 = as.matrix(R[1:3,(4):(5)])
+S21 = as.matrix(R[(4):(5), 1:3])
+S22 = as.matrix(R[(4):(5),(4):(5)])
+res = eigen(solve(sqrtm(S11)) %*% S12 %*% solve(S22) %*% S21 %*% solve(sqrtm(S11)))
 
+a1 =  solve(sqrtm(S11)) %*% res$vectors[, 1]
+a2 =  solve(sqrtm(S11)) %*% res$vectors[, 2]
+a3 =  solve(sqrtm(S11)) %*% res$vectors[, 3]
+
+b1_prop = solve(S22) %*% S21 %*% a1
+b2_prop = solve(S22) %*% S21 %*% a2
+
+b1 = b1_prop / sqrt(t(b1_prop) %*% S22 %*% b1_prop)[1, 1]
+b2 = b2_prop / sqrt(t(b2_prop) %*% S22 %*% b2_prop)[1, 1]
+
+A_z = as.matrix(cbind(a1, a2, a3), 3, 3)
+B_z = as.matrix(cbind(b1, b2), 2, 2)
+
+A_z_inv = solve(A_z)
+A_z_inv = A_z_inv[1:2, 1:2]
+B_z_inv = solve(B_z)
+
+prop_U_set = sum(diag(A_z_inv[, 1] %*% t(A_z_inv[, 1]) +
+                      A_z_inv[, 2] %*% t(A_z_inv[, 2]))) / 2
+
+prop_B_set = sum(diag(B_z_inv[, 1] %*% t(B_z_inv[, 1]) +
+                      B_z_inv[, 2] %*% t(B_z_inv[, 2]))) / 2
+
+print("Proportion of total standardized sample variance in the first set explained by U1 and U2")
+print(prop_U_set)
+
+
+print("Proportion of total standardized sample variance in the first set explained by U1 and U2")
+print(prop_B_set)
 ```
-
 
 ## Opinion on the Success of the canonical analysis.
 
 **Task:** Give your opinion on the success of this canonical correlation analysis.
 
-```{r}
-
-```
+We think that the canonical correlation analysis was successful since we found two canonical variables that are significant and explain up to some degree, the variability of the original data. It also helped us determine the joint relationship between the variables on the two datasets as seen in task c.
 
