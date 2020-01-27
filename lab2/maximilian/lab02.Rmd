@@ -176,7 +176,7 @@ sample_var = function(obs){
   # sample var formula from notes
   mix = (IdentityMat - (1/nrow(X)) *(one_n))
   
-  sample_variance = (1/nrow(X)) * (t(X) %*% mix %*% X)
+  sample_variance = (1/(nrow(X) - 1)) * (t(X) %*% mix %*% X)
   return(sample_variance)
 }
 
@@ -231,15 +231,20 @@ rotate = function(a,b,c){
 # S = matrix(c(4,-2,-2,4),byrow = T, nrow = 2)
 res = rotate(S[1,1],S[1,2],S[2,2])
 
+f95 = qf(0.95, p, n - p) * ((p * (n - 1)) / (n * (n - p)))
 chi95<-qchisq(.95,df=2)
-axes95 <- sqrt(eigenValVec$values) * sqrt(chi95)
+axes95 <- sqrt(eigenValVec$values) * sqrt(f95)
 
 
 library(ggforce)
 ggplot()+
   geom_point(aes(birddata$V1, birddata$V2))+
-  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=axes95[1], b=axes95[2], angle = res$angle ))
+  geom_ellipse(aes(x0=mu$mu1,y0=mu$mu2, a=axes95[1], b=axes95[2], angle = res$angle )) +
+  geom_point(aes(x=mu$mu1, y=mu$mu2, color="mu")) +
+  labs(colour="")
 ```
+
+We draw the same conclusion as before. The new values are plausible since they lie inside the ellipse (red dot).
 
 ## Simultaneous T2-intervals
 
