@@ -119,17 +119,17 @@ print(X_corr)
 
 ```{r}
 
-factanal(X,factors = 2, rotation = "none")
+factanal(X,factors = 2, rotation = "none", covmat = X_cov)
 
 ```
 
 ```{r}
-factanal(X,factors = 2, rotation = "varimax")
+factanal(X,factors = 2, covmat = X_cov)
 ```
 
 # Compute Factor Scores
 ```{r}
-factanal(X,factors = 2, rotation = "none", scores = "Bartlett")$scores
+factanal(X,factors = 2, scores = "Bartlett")$scores
 ```
 
 ```{r}
@@ -138,7 +138,8 @@ principal(X_cov,nfactors=2)
 
 # PC with Cov Mat
 ```{r}
-pc1 = principal(X_cov,nfactors=2, rotate = "varimax")
+pc1 = principal(X,nfactors=2, rotate = "varimax", covar = F)
+# pc1 = principal(X_corr,nfactors=2, rotate = "varimax", covar = T)
 pc1
 ```
 
@@ -155,5 +156,6 @@ pc2
 
 ```{r}
 pc2$r.scores
+
 ```
 
